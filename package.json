@@ -1,0 +1,9 @@
+{
+  "name": "ljq-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Li Jiaju personal portfolio - pure static site",
+  "scripts": {
+    "build": "exit 0"
+  }
+}
