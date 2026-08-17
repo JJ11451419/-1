@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <!-- 资源加版本号:修改代码后把 v=3 改成 v=4,强制浏览器重新下载(解决线上缓存问题) -->
+    <link rel="stylesheet" href="style.css?v=3">
+    <style>
+        /* 防止手机长按选中文字 + 允许 overlay 内按钮可点 */
+        html, body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        /* overlay 内的所有按钮:额外提升触摸可点击性 */
+        .overlay .game-btn { -webkit-touch-callout: default; touch-action: manipulation; cursor: pointer; }
+
+        /* 脚本加载失败时的错误提示条(默认隐藏) */
+        #loadErrorBar {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: linear-gradient(180deg, #c02020, #801010);
+            color: #fff;
+            padding: 10px 14px;
+            font-size: 13px;
+            text-align: center;
+            z-index: 999999;
+            font-family: 'Microsoft YaHei', sans-serif;
+            border-bottom: 2px solid #ffcc66;
+        }
+        #loadErrorBar strong { color: #ffe080; }
+        #loadErrorBar a { color: #a0d0ff; text-decoration: underline; }
+    </style>
+    <title>坦克大战</title>
+</head>
+<body>
+    <!-- 脚本/样式加载失败时的兜底提示 -->
+    <div id="loadErrorBar">
+        ⚠ <strong>加载失败</strong>：缺少 game.js 或 style.css。请确认已把以下 3 个文件一起上传到服务器同一目录：
+        <strong>index.html、game.js、style.css</strong>
+    </div>
+
+    <div class="game-container">
+        <!-- 游戏信息面板 -->
+        <div class="info-panel">
+            <div class="info-item">
+                <span class="label">关卡</span>
+                <span id="level">1</span>
+            </div>
+            <div class="info-item">
+                <span class="label">分数</span>
+                <span id="score">0</span>
+            </div>
+            <div class="info-item">
+                <span class="label">生命</span>
+                <span id="lives">3</span>
+            </div>
+            <div class="info-item">
+                <span class="label">敌人</span>
+                <span id="enemies">0</span>
+            </div>
+        </div>
+
+        <!-- 游戏画布 -->
+        <canvas id="gameCanvas" width="624" height="624"></canvas>
+
+        <!-- 开始界面 -->
+        <div id="startScreen" class="overlay">
+            <h1>坦 克 大 战</h1>
+            <p class="subtitle">BATTLE CITY</p>
+            <div class="controls-info">
+                <p>🎮 操作说明</p>
+                <p>W / ↑ — 向上移动</p>
+                <p>S / ↓ — 向下移动</p>
+                <p>A / ← — 向左移动</p>
+                <p>D / → — 向右移动</p>
+                <p>空格 / J — 发射子弹</p>
+                <p>P — 暂停游戏</p>
+            </div>
+            <!-- 开始按钮: 同时加 inline 的 touchend+click 兜底,即使 game.js 还没加载也能给反馈 -->
+            <button id="startBtn" class="game-btn"
+                    ontouchend="if(!window.__gameReady){document.getElementById('loadErrorBar').style.display='block';event.preventDefault();}"
+                    onclick="if(!window.__gameReady){document.getElementById('loadErrorBar').style.display='block';}">
+                开 始 游 戏
+            </button>
+        </div>
+
+        <!-- 暂停界面 -->
+        <div id="pauseScreen" class="overlay hidden">
+            <h2>⏸ 游戏暂停</h2>
+            <p>按 P 键继续 / 点左下 ⏸ 按钮</p>
+        </div>
+
+        <!-- 游戏结束界面 -->
+        <div id="gameOverScreen" class="overlay hidden">
+            <h2 id="gameOverTitle">游戏结束</h2>
+            <p id="gameOverMsg">再接再厉！</p>
+            <p>最终分数：<span id="finalScore">0</span></p>
+            <!-- 重开按钮:同样加兜底 -->
+            <button id="restartBtn" class="game-btn"
+                    ontouchend="if(!window.__gameReady){document.getElementById('loadErrorBar').style.display='block';event.preventDefault();}"
+                    onclick="if(!window.__gameReady){document.getElementById('loadErrorBar').style.display='block';}">
+                重 新 开 始
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== 移动端触屏控件 ========== -->
+    <!-- 竖屏提示遮罩:加一个"横屏了还是不消失?"的关闭入口,兼容微信/QQ等内置浏览器方向不准 -->
+    <div id="portraitMask" class="portrait-mask">
+        <div class="rotate-icon">📱</div>
+        <p>请将手机旋转为横屏</p>
+        <p class="small">横屏体验更佳</p>
+        <button id="portraitCloseBtn" class="game-btn" style="margin-top:28px;padding:10px 24px;font-size:14px;letter-spacing:2px;background:linear-gradient(180deg,#5a5a78,#2a2a3e);color:#fff;border:1px solid #888;box-shadow:none;">
+            仍要竖屏进入(显示不全)
+        </button>
+    </div>
+
+    <!-- 左侧方向键 -->
+    <div id="touchDpad" class="touch-dpad">
+        <button class="dpad-btn dpad-up" data-key="ArrowUp" aria-label="向上">▲</button>
+        <div class="dpad-middle">
+            <button class="dpad-btn dpad-left" data-key="ArrowLeft" aria-label="向左">◀</button>
+            <div class="dpad-center"></div>
+            <button class="dpad-btn dpad-right" data-key="ArrowRight" aria-label="向右">▶</button>
+        </div>
+        <button class="dpad-btn dpad-down" data-key="ArrowDown" aria-label="向下">▼</button>
+    </div>
+
+    <!-- 右侧操作按钮 -->
+    <div id="touchActions" class="touch-actions">
+        <button id="pauseBtn" class="action-btn action-pause" aria-label="暂停">⏸</button>
+        <button id="fireBtn" class="action-btn action-fire" data-key="Space" aria-label="射击">🔥</button>
+    </div>
+
+    <!-- 资源加版本号:下次修改后把 v=3 改成 v=4 -->
+    <script src="game.js?v=3" onerror="document.getElementById('loadErrorBar').style.display='block';"></script>
+    <script>
+        // game.js 加载完成后置标志,让 inline 兜底不触发
+        window.__gameReady = true;
+        // 样式加载检测(简单方案):若 .info-panel 没有 border 说明 style.css 未加载
+        setTimeout(function () {
+            try {
+                var el = document.querySelector('.info-panel');
+                if (el && !el.style.border) {
+                    var cs = getComputedStyle(el);
+                    if (!cs.border || cs.border === 'none' || cs.borderWidth === '0px') {
+                        document.getElementById('loadErrorBar').style.display = 'block';
+                    }
+                }
+            } catch (e) {}
+        }, 600);
+    </script>
+</body>
+</html>

@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>李家驹 · 化学工程与工艺 · 个人作品集</title>
+<meta name="description" content="李家驹，湖南师范大学化学工程与工艺专业学生。以分子为语言，探索物质与能量的边界。" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2307090b'/%3E%3Ccircle cx='32' cy='32' r='9' fill='%236de6d2'/%3E%3C/svg%3E" />
+
+<!--
+  ============================================================
+  李家驹 · 个人作品集  v1.0（基础版，单文件，可直接双击打开）
+  ------------------------------------------------------------
+  如何替换素材：
+  1. 首屏背景图：assets/hero-bg.jpg（来源于 头部.png），直接覆盖同名文件即可更换。
+  2. 头像照片：把照片放到 assets/ 文件夹，命名为 avatar.jpg，
+     然后搜索「AVATAR-IMG」注释处，把占位图换成 <img>。
+  3. 联系方式：搜索「联系邮箱 / 微信号 / 电话」，替换为真实信息。
+  4. 荣誉证书：assets/ 中已放置两张证书图片（化学奥赛一等奖、AI训练师证书），
+     需要更换时直接替换同名文件即可。
+     替换每个 <svg class="cover-art"> 占位。
+  ============================================================
+-->
+
+<style>
+:root{
+  --bg:#07090b;
+  --bg2:#0a0d10;
+  --panel:rgba(255,255,255,.028);
+  --line:rgba(255,255,255,.09);
+  --line-strong:rgba(255,255,255,.18);
+  --text:#e8ebee;
+  --muted:#8a94a0;
+  --faint:#5a6470;
+  --accent:#ff6b4a;
+  --accent-strong:#ff9278;
+  --accent-dim:rgba(255,107,74,.10);
+  --font-sans:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+  --font-mono:ui-monospace,"Cascadia Code","SF Mono","JetBrains Mono",Consolas,monospace;
+  --w:1700px;
+  --ease:cubic-bezier(.22,.61,.21,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-sans);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  line-height:1.7;
+}
+::selection{background:var(--accent);color:#1d0b06}
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:#07090b}
+::-webkit-scrollbar-thumb{background:#1a2129;border-radius:6px;border:2px solid #07090b}
+::-webkit-scrollbar-thumb:hover{background:#27313b}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--font-mono);letter-spacing:.14em}
+.wrap{max-width:var(--w);margin:0 auto;padding:0 56px}
+section[id]{scroll-margin-top:84px}
+
+/* 开场幕布 */
+.curtain{position:fixed;inset:0;z-index:100;background:radial-gradient(120% 120% at 50% 40%,#101418,#07090b 70%);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.curtain-brand{font-family:var(--font-mono);font-size:22px;letter-spacing:.5em;color:#fff;padding-left:.5em}
+.curtain-brand b{color:var(--accent);font-weight:700}
+/* 颗粒噪点 */
+.grain{position:fixed;inset:-50%;z-index:70;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:260px 260px;
+}
+
+/* 按钮 */
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-mono);
+  font-size:13px;letter-spacing:.14em;padding:14px 28px;border:1px solid var(--line-strong);
+  border-radius:2px;transition:all .35s var(--ease);cursor:pointer;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#1d0b06;border-color:var(--accent);font-weight:600}
+.btn-primary:hover{background:transparent;color:var(--accent);border-color:var(--accent);transform:translateY(-2px);
+  box-shadow:0 14px 44px rgba(255,107,74,.16)}
+.btn-ghost{color:var(--text);background:transparent}
+.btn-ghost:hover{background:var(--accent);color:#1d0b06;border-color:var(--accent);transform:translateY(-2px)}
+
+/* 顶部导航 */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;
+  border-bottom:1px solid transparent;
+  transition:all .45s var(--ease)}
+.nav.scrolled{
+  top:16px;left:50%;right:auto;transform:translateX(-50%);
+  width:calc(100% - 40px);max-width:1680px;border-radius:16px;
+  background:rgba(13,17,21,.62);
+  backdrop-filter:blur(26px) saturate(1.6);
+  -webkit-backdrop-filter:blur(26px) saturate(1.6);
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:0 14px 48px rgba(0,0,0,.5),0 2px 12px rgba(0,0,0,.35)}
+.nav.scrolled .wrap{max-width:1680px;padding:0 30px}
+.nav.scrolled .nav-inner{height:62px}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:76px}
+.brand{display:flex;align-items:baseline;gap:12px}
+.brand-mark{font-family:var(--font-mono);font-weight:700;font-size:19px;letter-spacing:.06em;color:#fff}
+.brand-mark b{color:var(--accent);font-weight:700}
+.brand-sub{font-family:var(--font-mono);font-size:10px;color:var(--faint);letter-spacing:.24em}
+.nav-links{display:flex;gap:46px}
+.nav-links a{font-size:14px;color:var(--muted);letter-spacing:.08em;position:relative;padding:6px 0;transition:color .3s}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--accent);transition:width .35s var(--ease)}
+.nav-links a:hover{color:#fff}
+.nav-links a:hover::after{width:100%}
+
+/* Hero 首屏 */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden}
+.hero-media{position:absolute;inset:0;z-index:0}
+#heroBg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.82;filter:saturate(1.18) contrast(1.12)}
+
+#moleculeCanvas{position:absolute;inset:0;width:100%;height:100%;opacity:.35;transition:opacity 1.2s ease}
+.hero-overlay{position:absolute;inset:0;z-index:1;background:
+  radial-gradient(1100px 560px at 76% 26%, rgba(255,107,74,.07), transparent 60%),
+  linear-gradient(180deg, rgba(7,9,11,.62) 0%, rgba(7,9,11,.28) 42%, rgba(7,9,11,.9) 100%)}
+.hero-inner{position:relative;z-index:2;width:100%;padding-top:60px}
+.hero-kicker{color:var(--accent);font-size:12px;margin-bottom:30px;display:flex;align-items:center;gap:16px}
+.hero-kicker::before{content:"";width:46px;height:1px;background:var(--accent)}
+.hero-title{font-size:clamp(76px,10.5vw,184px);font-weight:800;line-height:1.02;letter-spacing:.02em;color:#fff}
+.hero-ghost{position:absolute;right:-10px;top:-30px;z-index:0;font-family:var(--font-mono);
+  font-size:clamp(90px,15vw,240px);font-weight:800;color:transparent;
+  -webkit-text-stroke:1px rgba(255,255,255,.055);letter-spacing:.04em;user-select:none;pointer-events:none}
+.hero-line{width:100%;max-width:620px;height:1px;margin:36px 0 28px;
+  background:linear-gradient(90deg,var(--accent),rgba(255,107,74,0))}
+.hero-sub{font-size:clamp(18px,1.6vw,24px);color:#c7cdd4;line-height:1.9;max-width:760px}
+.hero-sub span{color:var(--accent)}
+.hero-cta{display:flex;gap:18px;margin-top:44px;flex-wrap:wrap}
+.hero-meta{display:flex;gap:34px;margin-top:auto;padding-top:120px;flex-wrap:wrap}
+.hero-meta span{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.22em;color:var(--faint)}
+.hero-meta span i{font-style:normal;color:var(--accent)}
+.hero-side{position:absolute;right:44px;top:50%;transform:translateY(-50%);z-index:2;
+  writing-mode:vertical-rl;font-family:var(--font-mono);font-size:10px;letter-spacing:.6em;color:rgba(255,255,255,.2)}
+.hero-scroll{position:absolute;left:56px;bottom:42px;z-index:2;display:flex;align-items:center;gap:14px;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.3em;color:var(--faint)}
+.hero-scroll span{display:block;width:1px;height:44px;background:linear-gradient(180deg,var(--accent),transparent);
+  animation:drop 2.4s var(--ease) infinite}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}
+  55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* 通用区块 */
+.sec{padding:150px 0;position:relative}
+.sec-head{margin-bottom:78px}
+.sec-index{color:var(--accent);font-size:12px;display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.sec-index::before{content:"";width:40px;height:1px;background:var(--accent)}
+.sec-title{font-size:clamp(38px,4.4vw,64px);font-weight:700;letter-spacing:.02em;color:#fff;line-height:1.15}
+.sec-rule{margin-top:28px;width:100%;height:1px;
+  background:linear-gradient(90deg,var(--line-strong),transparent)}
+
+/* 个人经历 */
+.about-grid{display:grid;grid-template-columns:400px 1fr;gap:72px;align-items:start}
+.about-card{position:relative;border:1px solid var(--line);
+  background:linear-gradient(160deg,rgba(255,255,255,.04),rgba(255,255,255,.01));padding:14px}
+
+
+
+
+.avatar{position:relative;aspect-ratio:1/1;overflow:hidden;
+  background:radial-gradient(120% 120% at 20% 0%,#271410,#0a0d10 62%);
+  display:flex;align-items:center;justify-content:center}
+.avatar-bg{position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:44px 44px}
+.avatar-hex{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
+.avatar-hex .ring{transform-origin:150px 150px;animation:spin 60s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.avatar-initial{position:relative;z-index:2;font-size:clamp(96px,11vw,150px);font-weight:800;
+  color:rgba(255,255,255,.94);line-height:1;letter-spacing:.02em;
+  text-shadow:0 0 60px rgba(255,107,74,.25)}
+.avatar-tag{position:absolute;left:14px;bottom:14px;right:14px;z-index:2;
+  display:flex;justify-content:space-between;font-family:var(--font-mono);
+  font-size:9.5px;letter-spacing:.2em;color:var(--faint)}
+.about-id{display:flex;justify-content:space-between;align-items:center;
+  padding:16px 4px 4px;font-family:var(--font-mono);font-size:10.5px;
+  letter-spacing:.18em;color:var(--muted)}
+.about-text{font-size:clamp(16px,1.35vw,19px);color:#c7cdd4;line-height:2.05}
+.about-text p + p{margin-top:20px}
+.about-text em{font-style:normal;color:var(--accent)}
+.contact-list{margin-top:44px;border-top:1px solid var(--line)}
+.contact-row{display:flex;justify-content:space-between;align-items:center;
+  padding:17px 4px;border-bottom:1px solid var(--line);font-size:14.5px;gap:20px}
+.contact-row .k{font-family:var(--font-mono);font-size:10.5px;color:var(--faint);letter-spacing:.24em;white-space:nowrap}
+.contact-row .v{color:var(--text);transition:color .3s}
+.contact-row .v a:hover{color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);margin-top:48px}
+.stat{background:var(--bg2);padding:28px 16px;text-align:center}
+.stat b{font-family:var(--font-mono);font-size:clamp(26px,2.4vw,38px);font-weight:600;
+  color:#fff;display:block;line-height:1.1}
+.stat b i{font-style:normal;color:var(--accent)}
+.stat span{font-size:12px;color:var(--muted);margin-top:10px;display:block;letter-spacing:.06em}
+
+/* 荣誉资质 */
+.honors-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.honor-card{position:relative;border:1px solid var(--line);background:var(--panel);
+  overflow:hidden;transition:border-color .4s,transform .4s var(--ease)}
+.honor-card:hover{border-color:rgba(255,107,74,.35);transform:translateY(-6px)}
+.honor-cover{position:relative;aspect-ratio:1.41/1;overflow:hidden;background:#0b0f12}
+.honor-img{position:absolute;inset:0;overflow:hidden}
+.honor-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:transform .9s var(--ease)}
+.honor-card:hover .honor-img img{transform:scale(1.03)}
+.honor-tag{position:absolute;top:18px;left:18px;z-index:3;font-family:var(--font-mono);
+  font-size:10px;letter-spacing:.22em;color:#ffd9ce;background:rgba(24,10,6,.6);
+  border:1px solid rgba(255,107,74,.35);padding:7px 12px;backdrop-filter:blur(6px)}
+.honor-body{padding:30px 32px 34px}
+.honor-body h3{font-size:clamp(19px,1.5vw,23px);color:#fff;font-weight:600;letter-spacing:.02em;
+  display:flex;justify-content:space-between;align-items:center;gap:16px}
+.honor-body h3 .arr{font-family:var(--font-mono);color:var(--accent);font-size:15px;
+  opacity:0;transform:translateX(-10px);transition:all .4s var(--ease)}
+.honor-card:hover .arr{opacity:1;transform:translateX(0)}
+.honor-body p{color:var(--muted);font-size:14.5px;margin-top:13px;line-height:1.95;max-width:640px}
+
+/* 兴趣爱好 */
+.hobby-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.hobby-card{position:relative;border:1px solid var(--line);background:var(--panel);
+  overflow:hidden;transition:border-color .4s,transform .4s var(--ease)}
+.hobby-card:hover{border-color:rgba(255,107,74,.35);transform:translateY(-6px)}
+.hobby-cover{position:relative;aspect-ratio:16/11;overflow:hidden;background:#0b0f12}
+.hobby-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:grayscale(.35) contrast(1.05);transition:transform .9s var(--ease),filter .6s var(--ease)}
+.hobby-card:hover .hobby-cover img{transform:scale(1.05);filter:grayscale(0)}
+.hobby-cover::after{content:"";position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,rgba(7,9,11,.22),transparent 38%,rgba(7,9,11,.78) 100%)}
+.hobby-tag{position:absolute;top:18px;left:18px;z-index:3;font-family:var(--font-mono);
+  font-size:10px;letter-spacing:.24em;color:#ffd9ce;background:rgba(24,10,6,.6);
+  border:1px solid rgba(255,107,74,.4);padding:7px 12px;backdrop-filter:blur(6px)}
+.hobby-idx{position:absolute;top:18px;right:18px;z-index:3;font-family:var(--font-mono);
+  font-size:10.5px;letter-spacing:.22em;color:rgba(255,255,255,.45)}
+.hobby-body{padding:30px 32px 34px}
+.hobby-kicker{font-family:var(--font-mono);font-size:10px;letter-spacing:.3em;color:var(--accent)}
+.hobby-body h3{font-size:clamp(20px,1.6vw,26px);color:#fff;font-weight:700;letter-spacing:.02em;
+  margin-top:10px;display:flex;align-items:baseline;gap:14px}
+.hobby-body h3 span{font-family:var(--font-mono);font-size:12px;font-weight:500;
+  letter-spacing:.24em;color:var(--muted)}
+.hobby-desc{color:var(--muted);font-size:14.5px;margin-top:14px;line-height:1.95}
+.hobby-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);margin-top:24px}
+.hobby-fact{background:var(--bg2);padding:18px 12px;text-align:center}
+.hobby-fact b{font-family:var(--font-mono);font-size:26px;font-weight:600;color:#fff;display:block;line-height:1.1}
+.hobby-fact b i{font-style:normal;color:var(--accent)}
+.hobby-fact span{font-size:10.5px;color:var(--faint);display:block;margin-top:8px;letter-spacing:.08em}
+.hobby-sign{margin-top:18px;font-size:13px;color:var(--muted);display:flex;gap:10px;align-items:flex-start;line-height:1.8}
+.hobby-sign b{color:var(--text);font-weight:600;white-space:nowrap}
+
+/* 精选项目 */
+.proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.proj-card{position:relative;border:1px solid var(--line);background:var(--panel);
+  overflow:hidden;transition:border-color .4s,transform .4s var(--ease)}
+.proj-card:hover{border-color:rgba(255,107,74,.35);transform:translateY(-6px)}
+.proj-cover{position:relative;aspect-ratio:16/10;overflow:hidden;background:#0b0f12}
+.cover-art{position:absolute;inset:0;width:100%;height:100%;transition:transform .9s var(--ease)}
+.proj-card:hover .cover-art{transform:scale(1.045)}
+.proj-tag{position:absolute;top:18px;left:18px;z-index:3;font-family:var(--font-mono);
+  font-size:10px;letter-spacing:.22em;color:#ffd9ce;background:rgba(24,10,6,.6);
+  border:1px solid rgba(255,107,74,.35);padding:7px 12px;backdrop-filter:blur(6px)}
+.proj-index{position:absolute;top:18px;right:18px;z-index:3;font-family:var(--font-mono);
+  font-size:10.5px;letter-spacing:.22em;color:rgba(255,255,255,.4)}
+.proj-body{padding:30px 32px 34px}
+.proj-body h3{font-size:clamp(19px,1.5vw,23px);color:#fff;font-weight:600;letter-spacing:.02em;
+  display:flex;justify-content:space-between;align-items:center;gap:16px}
+.proj-body h3 .arr{font-family:var(--font-mono);color:var(--accent);font-size:15px;
+  opacity:0;transform:translateX(-10px);transition:all .4s var(--ease)}
+.proj-card:hover .arr{opacity:1;transform:translateX(0)}
+.proj-body p{color:var(--muted);font-size:14.5px;margin-top:13px;line-height:1.95;max-width:640px}
+.proj-meta{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.chip{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted);
+  border:1px solid var(--line);padding:5px 11px;transition:border-color .3s,color .3s}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.proj-card{display:block}
+.proj-card.wide{grid-column:1/-1}
+.proj-card.wide .proj-cover{aspect-ratio:21/9}
+.proj-open{display:inline-block;margin-top:20px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.22em;color:var(--accent);border-bottom:1px solid rgba(255,107,74,.35);padding-bottom:5px;transition:border-color .3s}
+.proj-card:hover .proj-open{border-color:var(--accent)}
+
+/* 个人优势 */
+.str-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.str-card{position:relative;border:1px solid var(--line);background:var(--panel);
+  padding:36px 32px;overflow:hidden;transition:border-color .4s,transform .4s var(--ease)}
+
+
+
+
+.str-card:hover{border-color:rgba(255,107,74,.3);transform:translateY(-4px)}
+.str-num{font-family:var(--font-mono);font-size:11.5px;color:var(--faint);letter-spacing:.24em}
+.str-icon{width:46px;height:46px;border:1px solid var(--line);display:flex;align-items:center;
+  justify-content:center;margin:24px 0 22px;color:var(--accent)}
+.str-card h3{font-size:18px;color:#fff;letter-spacing:.04em}
+.str-card p{font-size:14px;color:var(--muted);margin-top:12px;line-height:1.9}
+
+/* 结尾联系方式 */
+.contact{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;
+  border-top:1px solid var(--line)}
+.contact-glow{position:absolute;inset:0;
+  background:radial-gradient(900px 500px at 50% 40%,rgba(255,107,74,.08),transparent 65%)}
+.contact-ghost{position:absolute;bottom:-56px;left:50%;transform:translateX(-50%);
+  font-size:clamp(120px,23vw,360px);font-weight:800;color:transparent;
+  -webkit-text-stroke:1px rgba(255,255,255,.05);white-space:nowrap;z-index:0;line-height:1;
+  font-family:var(--font-mono);letter-spacing:.06em;user-select:none;pointer-events:none}
+.contact-inner{position:relative;z-index:2;text-align:center;width:100%;padding:130px 0 44px}
+.contact-kicker{justify-content:center}
+.contact-title{font-size:clamp(40px,5.6vw,86px);font-weight:800;line-height:1.22;color:#fff}
+.contact-title span{color:var(--accent)}
+.contact-sub{color:var(--muted);font-size:17px;margin-top:28px;letter-spacing:.04em}
+.contact-ways{display:flex;justify-content:center;gap:16px;margin-top:56px;flex-wrap:wrap}
+.contact-ways a{border:1px solid var(--line-strong);padding:18px 34px;min-width:210px;
+  font-family:var(--font-mono);font-size:12.5px;letter-spacing:.14em;color:var(--text);
+  transition:all .35s var(--ease)}
+.contact-ways a small{display:block;font-size:10px;color:var(--faint);letter-spacing:.2em;margin-top:6px}
+.contact-ways a:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-3px)}
+.contact-ways a:hover small{color:var(--muted)}
+.contact-foot{display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--line);margin-top:150px;padding-top:28px;
+  font-family:var(--font-mono);font-size:11px;color:var(--faint);letter-spacing:.12em}
+.contact-foot a{color:var(--muted);transition:color .3s}
+.contact-foot a:hover{color:var(--accent)}
+
+/* 滚动浮现 */
+
+
+/* 响应式（PC 优先，兼顾窄屏） */
+@media (max-width:1280px){
+  .about-grid{grid-template-columns:340px 1fr;gap:48px}
+  .str-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:960px){
+  .wrap{padding:0 28px}
+  .nav-links{display:none}
+  .about-grid{grid-template-columns:1fr}
+  .proj-grid{grid-template-columns:1fr}
+  .str-grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .hero-side{display:none}
+  .hero-scroll{display:none}
+  .sec{padding:96px 0}
+}
+/* ===== Hero 优化（参考头部参考图风格） ===== */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden}
+.hero-inner{padding-top:36px}
+.hero-inner > *:not(.hero-ghost){max-width:720px}
+.hero-overlay{background:
+  radial-gradient(1100px 640px at 82% 38%, rgba(255,140,110,.15), transparent 62%),
+  radial-gradient(1500px 900px at 92% 68%, rgba(255,120,90,.09), transparent 66%),
+  linear-gradient(180deg, rgba(7,9,11,.66) 0%, rgba(7,9,11,.30) 40%, rgba(7,9,11,.92) 100%)}
+.hero-title{font-size:clamp(52px,6.4vw,112px);letter-spacing:.05em;white-space:nowrap;color:#ff6b4a}
+.hero-name-sub{display:flex;align-items:center;gap:16px;margin:20px 0 0 4px;font-size:16px;letter-spacing:.55em;color:var(--muted)}
+.hero-name-sub::before{content:"";width:36px;height:1px;background:var(--accent)}
+.hero-kicker{margin-bottom:26px}
+.hero-line{margin:32px 0 26px}
+
+/* 右侧发光核心（呼应参考图的中央光体） */
+.hero-visual{position:absolute;right:-40px;top:50%;transform:translateY(-50%);
+  width:min(48vw,780px);aspect-ratio:1;z-index:2;pointer-events:none;opacity:.95}
+.orb{position:absolute;border-radius:50%}
+.orb-core{inset:20%;background:
+  radial-gradient(circle at 40% 36%, #fff 0%, #ffe3d8 26%, rgba(255,124,92,.55) 52%, rgba(255,107,74,0) 70%);
+  filter:blur(3px);animation:orbPulse 6s ease-in-out infinite}
+.orb-ring{inset:4%;border:1px dashed rgba(255,150,120,.30);animation:spin 48s linear infinite}
+.orb-ring.r2{inset:15%;border:1px solid rgba(255,150,120,.12);animation:spin 70s linear infinite reverse}
+.orb-ring.r3{inset:28%;border:1px solid rgba(255,150,120,.09);animation:spin 95s linear infinite}
+.dot{position:absolute;width:7px;height:7px;border-radius:50%;background:#ffc0a8;
+  box-shadow:0 0 14px rgba(255,150,120,.95)}
+.d1{top:5%;left:34%}
+.d2{top:32%;right:3%}
+.d3{bottom:6%;left:42%}
+.d4{top:52%;left:-2%}
+.d5{top:-2%;left:62%;width:5px;height:5px}
+@keyframes orbPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.hero-side{color:rgba(255,150,120,.55)}
+
+@media (max-width:1200px){
+  .hero-visual{display:none}
+  .hero-inner > *:not(.hero-ghost){max-width:680px}
+}
+
+/* ===== 主题切换 ===== */
+.theme-toggle{width:38px;height:38px;border:1px solid var(--line-strong);background:transparent;color:var(--text);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .35s var(--ease)}
+.theme-toggle:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+.theme-toggle svg{width:17px;height:17px}
+.theme-toggle .icon-sun{display:none}
+html[data-theme="light"] .theme-toggle .icon-moon{display:none}
+html[data-theme="light"] .theme-toggle .icon-sun{display:block}
+.nav-actions{display:flex;align-items:center;gap:14px}
+.curtain-hint{margin-top:30px;font-family:var(--font-mono);font-size:11px;letter-spacing:.3em;color:var(--faint);display:flex;align-items:center;gap:10px}
+.curtain-hint::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);animation:hintBlink 1.6s ease-in-out infinite}
+@keyframes hintBlink{0%,100%{opacity:.2}50%{opacity:1}}
+.curtain-hint-en{margin-top:10px;font-family:var(--font-mono);font-size:9px;letter-spacing:.4em;color:rgba(255,255,255,.28)}
+
+.music-toggle:not(.playing){animation:musicPulse 2.4s ease-in-out infinite}
+@keyframes musicPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,74,.25)}50%{box-shadow:0 0 0 8px rgba(255,107,74,0)}}
+
+
+/* 浅色主题 */
+html[data-theme="light"]{
+  --bg:#f2f1ee;
+  --bg2:#fbfaf8;
+  --panel:rgba(20,22,26,.035);
+  --line:rgba(20,22,26,.10);
+  --line-strong:rgba(20,22,26,.20);
+  --text:#1b1c1f;
+  --muted:#5b616b;
+  --faint:#8b9099;
+  --accent:#e3542b;
+  --accent-strong:#ff7a52;
+  --accent-dim:rgba(227,84,43,.10);
+}
+html[data-theme="light"] body{background:var(--bg);color:var(--text)}
+html[data-theme="light"] ::selection{background:var(--accent);color:#fff}
+html[data-theme="light"] ::-webkit-scrollbar-track{background:#f2f1ee}
+html[data-theme="light"] ::-webkit-scrollbar-thumb{background:#cfccc6;border-color:#f2f1ee}
+html[data-theme="light"] .grain{opacity:.03}
+
+/* 首屏 */
+html[data-theme="light"] .hero-overlay{background:
+  radial-gradient(1100px 640px at 82% 38%, rgba(227,84,43,.10), transparent 62%),
+  radial-gradient(1500px 900px at 92% 68%, rgba(227,84,43,.06), transparent 66%),
+  linear-gradient(180deg, rgba(242,241,238,.88) 0%, rgba(242,241,238,.55) 42%, rgba(242,241,238,.96) 100%)}
+html[data-theme="light"] .hero-ghost{-webkit-text-stroke:1px rgba(20,22,26,.07)}
+html[data-theme="light"] .hero-sub{color:#3c4046}
+html[data-theme="light"] .hero-meta span{color:var(--faint)}
+html[data-theme="light"] .hero-side{color:rgba(227,84,43,.5)}
+
+/* 导航 */
+html[data-theme="light"] .nav.scrolled{background:rgba(242,241,238,.8);border-color:var(--line);
+  box-shadow:0 14px 48px rgba(20,22,26,.10),0 2px 12px rgba(20,22,26,.06)}
+html[data-theme="light"] .brand-mark{color:#17181a}
+html[data-theme="light"] .brand-sub{color:var(--faint)}
+
+/* 文字与卡片（深色封面保留，营造图片卡片质感） */
+html[data-theme="light"] .sec-title,
+html[data-theme="light"] .proj-body h3,
+html[data-theme="light"] .honor-body h3,
+html[data-theme="light"] .hobby-body h3,
+html[data-theme="light"] .str-card h3,
+html[data-theme="light"] .stat b,
+html[data-theme="light"] .hobby-fact b,
+html[data-theme="light"] .contact-title{color:#17181a}
+html[data-theme="light"] .about-text{color:#3c4046}
+html[data-theme="light"] .contact-ghost{-webkit-text-stroke:1px rgba(20,22,26,.06)}
+html[data-theme="light"] .proj-cover,html[data-theme="light"] .honor-cover,html[data-theme="light"] .hobby-cover{background:#101214}
+
+/* 头像与标签 */
+html[data-theme="light"] .avatar{background:radial-gradient(120% 120% at 20% 0%,#f6e7df,#fbfaf8 62%)}
+html[data-theme="light"] .avatar-initial{color:rgba(20,22,26,.92)}
+html[data-theme="light"] .proj-tag,html[data-theme="light"] .honor-tag,html[data-theme="light"] .hobby-tag{background:rgba(255,255,255,.75);color:#8f3a22}
+
+/* 幕布 */
+html[data-theme="light"] .curtain{background:radial-gradient(120% 120% at 50% 40%,#ffffff,#f2f1ee 70%)}
+html[data-theme="light"] .curtain-brand{color:#17181a}
+
+/* 切主题时平滑过渡 */
+html.theme-anim,html.theme-anim body,html.theme-anim .nav,html.theme-anim .sec-title,html.theme-anim .proj-body h3,html.theme-anim .honor-body h3,html.theme-anim .hobby-body h3,html.theme-anim .str-card h3,html.theme-anim .stat b,html.theme-anim .hobby-fact b,html.theme-anim .contact-title,html.theme-anim .about-text,html.theme-anim .brand-mark,html.theme-anim .btn-ghost{transition:background-color .45s ease,color .45s ease,border-color .45s ease}
+
+/* ===== 背景音乐按钮 ===== */
+.music-toggle .icon-note{display:block}
+.music-toggle .eq{display:none;align-items:flex-end;gap:2.5px;height:14px}
+.music-toggle.playing .icon-note{display:none}
+.music-toggle.playing .eq{display:flex}
+.eq i{width:3px;background:var(--accent);border-radius:1px;animation:eq 1s ease-in-out infinite}
+.eq i:nth-child(1){height:6px;animation-delay:0s}
+.eq i:nth-child(2){height:14px;animation-delay:.15s}
+.eq i:nth-child(3){height:9px;animation-delay:.3s}
+@keyframes eq{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1.15)}}
+
+/* ===== 爱好音乐播放器 ===== */
+.hobby-player{margin-top:24px;border:1px solid var(--line);background:linear-gradient(150deg,rgba(255,107,74,.07),rgba(255,255,255,.015) 55%);padding:20px 20px 18px}
+.hp-info{display:flex;gap:14px;align-items:center}
+.hp-note{width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,107,74,.45);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;background:rgba(255,107,74,.08)}
+.hp-txt{min-width:0}
+.hp-txt b{color:#fff;font-size:15.5px;letter-spacing:.03em;display:block}
+.hp-txt span{color:var(--muted);font-size:12px;line-height:1.6;display:block;margin-top:3px}
+.hp-txt .hp-en{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.16em;color:var(--faint);margin-top:5px}
+.hp-controls{display:flex;align-items:center;gap:14px;margin-top:16px}
+.hp-play{width:38px;height:38px;border-radius:50%;border:1px solid var(--accent);background:var(--accent);color:#1d0b06;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s var(--ease);flex-shrink:0}
+.hp-play:hover{transform:scale(1.08);box-shadow:0 0 24px rgba(255,107,74,.35)}
+.hp-play svg{width:15px;height:15px}
+.hp-play .ic-pause{display:none}
+.hp-play.playing .ic-play{display:none}
+.hp-play.playing .ic-pause{display:block}
+.hp-progress{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;cursor:pointer}
+.hp-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-strong));border-radius:2px}
+.hp-time{font-family:var(--font-mono);font-size:10px;color:var(--faint);white-space:nowrap}
+html[data-theme="light"] .hp-txt b{color:#17181a}
+html[data-theme="light"] .hp-progress{background:rgba(20,22,26,.12)}
+
+/* ===== BorderGlow（个人经历卡片，React Bits） ===== */
+.about-card{
+  --edge-proximity: 0;
+  --cursor-angle: 45deg;
+  --edge-sensitivity: 30;
+  --color-sensitivity: calc(var(--edge-sensitivity) + 20);
+  --border-radius: 33px;
+  --glow-padding: 58px;
+  --cone-spread: 25;
+  --card-bg: #120F17;
+  --fill-opacity: 0.5;
+  --glow-color: hsl(40deg 80% 80% / 100%);
+  --glow-color-60: hsl(40deg 80% 80% / 100%);
+  --glow-color-50: hsl(40deg 80% 80% / 90%);
+  --glow-color-40: hsl(40deg 80% 80% / 72%);
+  --glow-color-30: hsl(40deg 80% 80% / 54%);
+  --glow-color-20: hsl(40deg 80% 80% / 36%);
+  --glow-color-10: hsl(40deg 80% 80% / 18%);
+  --gradient-one: radial-gradient(at 80% 55%, #c084fc 0px, transparent 50%);
+  --gradient-two: radial-gradient(at 69% 34%, #f472b6 0px, transparent 50%);
+  --gradient-three: radial-gradient(at 8% 6%, #38bdf8 0px, transparent 50%);
+  --gradient-four: radial-gradient(at 41% 38%, #c084fc 0px, transparent 50%);
+  --gradient-five: radial-gradient(at 86% 85%, #f472b6 0px, transparent 50%);
+  --gradient-six: radial-gradient(at 82% 18%, #38bdf8 0px, transparent 50%);
+  --gradient-seven: radial-gradient(at 51% 4%, #f472b6 0px, transparent 50%);
+  --gradient-base: linear-gradient(#c084fc 0 100%);
+  position: relative;
+  border-radius: var(--border-radius);
+  isolation: isolate;
+  transform: translate3d(0, 0, 0.01px);
+  border: 1px solid rgb(255 255 255 / 15%);
+  background: var(--card-bg);
+  overflow: visible;
+  box-shadow:
+    rgba(0, 0, 0, 0.1) 0px 1px 2px,
+    rgba(0, 0, 0, 0.1) 0px 2px 4px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px,
+    rgba(0, 0, 0, 0.1) 0px 8px 16px,
+    rgba(0, 0, 0, 0.1) 0px 16px 32px,
+    rgba(0, 0, 0, 0.1) 0px 32px 64px;
+}
+.about-card::before,
+.about-card::after,
+.about-card > .edge-light{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  transition: opacity 0.25s ease-out;
+  z-index: -1;
+}
+.about-card:not(:hover):not(.sweep-active)::before,
+.about-card:not(:hover):not(.sweep-active)::after,
+.about-card:not(:hover):not(.sweep-active) > .edge-light{
+  opacity: 0;
+  transition: opacity 0.75s ease-in-out;
+}
+.about-card::before{
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--card-bg) 0 100%) padding-box,
+    linear-gradient(rgb(255 255 255 / 0%) 0% 100%) border-box,
+    var(--gradient-one) border-box,
+    var(--gradient-two) border-box,
+    var(--gradient-three) border-box,
+    var(--gradient-four) border-box,
+    var(--gradient-five) border-box,
+    var(--gradient-six) border-box,
+    var(--gradient-seven) border-box,
+    var(--gradient-base) border-box;
+  opacity: calc((var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
+  mask-image:
+    conic-gradient(
+      from var(--cursor-angle) at center,
+      black calc(var(--cone-spread) * 1%),
+      transparent calc((var(--cone-spread) + 15) * 1%),
+      transparent calc((100 - var(--cone-spread) - 15) * 1%),
+      black calc((100 - var(--cone-spread)) * 1%)
+    );
+}
+.about-card::after{
+  border: 1px solid transparent;
+  background:
+    var(--gradient-one) padding-box,
+    var(--gradient-two) padding-box,
+    var(--gradient-three) padding-box,
+    var(--gradient-four) padding-box,
+    var(--gradient-five) padding-box,
+    var(--gradient-six) padding-box,
+    var(--gradient-seven) padding-box,
+    var(--gradient-base) padding-box;
+  mask-image:
+    linear-gradient(to bottom, black, black),
+    radial-gradient(ellipse at 50% 50%, black 40%, transparent 65%),
+    radial-gradient(ellipse at 66% 66%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 33% 33%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 66% 33%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 33% 66%, black 5%, transparent 40%),
+    conic-gradient(from var(--cursor-angle) at center, transparent 5%, black 15%, black 85%, transparent 95%);
+  mask-composite: subtract, add, add, add, add, add;
+  opacity: calc(var(--fill-opacity, 0.5) * (var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
+  mix-blend-mode: soft-light;
+}
+.about-card > .edge-light{
+  inset: calc(var(--glow-padding) * -1);
+  pointer-events: none;
+  z-index: 1;
+  mask-image:
+    conic-gradient(
+      from var(--cursor-angle) at center, black 2.5%, transparent 10%, transparent 90%, black 97.5%
+    );
+  opacity: calc((var(--edge-proximity) - var(--edge-sensitivity)) / (100 - var(--edge-sensitivity)));
+  mix-blend-mode: plus-lighter;
+}
+.about-card > .edge-light::before{
+  content: "";
+  position: absolute;
+  inset: var(--glow-padding);
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px var(--glow-color),
+    inset 0 0 1px 0 var(--glow-color-60),
+    inset 0 0 3px 0 var(--glow-color-50),
+    inset 0 0 6px 0 var(--glow-color-40),
+    inset 0 0 15px 0 var(--glow-color-30),
+    inset 0 0 25px 2px var(--glow-color-20),
+    inset 0 0 50px 2px var(--glow-color-10),
+    0 0 1px 0 var(--glow-color-60),
+    0 0 3px 0 var(--glow-color-50),
+    0 0 6px 0 var(--glow-color-40),
+    0 0 15px 0 var(--glow-color-30),
+    0 0 25px 2px var(--glow-color-20),
+    0 0 50px 2px var(--glow-color-10);
+}
+.about-card > .avatar,
+.about-card > .about-id{
+  position: relative;
+  z-index: 1;
+}
+.about-card .avatar{border-radius: calc(var(--border-radius) - 14px)}
+html[data-theme="light"] .about-card{--card-bg:#fbfaf8;border-color:rgba(20,22,26,.14)}
+
+/* ===== BorderGlow（个人优势卡片） ===== */
+.str-card{
+  --edge-proximity: 0;
+  --cursor-angle: 45deg;
+  --edge-sensitivity: 30;
+  --color-sensitivity: calc(var(--edge-sensitivity) + 20);
+  --border-radius: 20px;
+  --glow-padding: 30px;
+  --cone-spread: 25;
+  --card-bg: #120F17;
+  --fill-opacity: 0.5;
+  --glow-color: hsl(40deg 80% 80% / 100%);
+  --glow-color-60: hsl(40deg 80% 80% / 100%);
+  --glow-color-50: hsl(40deg 80% 80% / 90%);
+  --glow-color-40: hsl(40deg 80% 80% / 72%);
+  --glow-color-30: hsl(40deg 80% 80% / 54%);
+  --glow-color-20: hsl(40deg 80% 80% / 36%);
+  --glow-color-10: hsl(40deg 80% 80% / 18%);
+  --gradient-one: radial-gradient(at 80% 55%, #c084fc 0px, transparent 50%);
+  --gradient-two: radial-gradient(at 69% 34%, #f472b6 0px, transparent 50%);
+  --gradient-three: radial-gradient(at 8% 6%, #38bdf8 0px, transparent 50%);
+  --gradient-four: radial-gradient(at 41% 38%, #c084fc 0px, transparent 50%);
+  --gradient-five: radial-gradient(at 86% 85%, #f472b6 0px, transparent 50%);
+  --gradient-six: radial-gradient(at 82% 18%, #38bdf8 0px, transparent 50%);
+  --gradient-seven: radial-gradient(at 51% 4%, #f472b6 0px, transparent 50%);
+  --gradient-base: linear-gradient(#c084fc 0 100%);
+  position: relative;
+  border-radius: var(--border-radius);
+  isolation: isolate;
+  transform: translate3d(0, 0, 0.01px);
+  border: 1px solid rgb(255 255 255 / 15%);
+  background: var(--card-bg);
+  overflow: visible;
+}
+.str-card::before,
+.str-card::after,
+.str-card > .edge-light{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  transition: opacity 0.25s ease-out;
+  z-index: -1;
+}
+.str-card:not(:hover):not(.sweep-active)::before,
+.str-card:not(:hover):not(.sweep-active)::after,
+.str-card:not(:hover):not(.sweep-active) > .edge-light{
+  opacity: 0;
+  transition: opacity 0.75s ease-in-out;
+}
+.str-card::before{
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--card-bg) 0 100%) padding-box,
+    linear-gradient(rgb(255 255 255 / 0%) 0% 100%) border-box,
+    var(--gradient-one) border-box,
+    var(--gradient-two) border-box,
+    var(--gradient-three) border-box,
+    var(--gradient-four) border-box,
+    var(--gradient-five) border-box,
+    var(--gradient-six) border-box,
+    var(--gradient-seven) border-box,
+    var(--gradient-base) border-box;
+  opacity: calc((var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
+  mask-image:
+    conic-gradient(
+      from var(--cursor-angle) at center,
+      black calc(var(--cone-spread) * 1%),
+      transparent calc((var(--cone-spread) + 15) * 1%),
+      transparent calc((100 - var(--cone-spread) - 15) * 1%),
+      black calc((100 - var(--cone-spread)) * 1%)
+    );
+}
+.str-card::after{
+  border: 1px solid transparent;
+  background:
+    var(--gradient-one) padding-box,
+    var(--gradient-two) padding-box,
+    var(--gradient-three) padding-box,
+    var(--gradient-four) padding-box,
+    var(--gradient-five) padding-box,
+    var(--gradient-six) padding-box,
+    var(--gradient-seven) padding-box,
+    var(--gradient-base) padding-box;
+  mask-image:
+    linear-gradient(to bottom, black, black),
+    radial-gradient(ellipse at 50% 50%, black 40%, transparent 65%),
+    radial-gradient(ellipse at 66% 66%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 33% 33%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 66% 33%, black 5%, transparent 40%),
+    radial-gradient(ellipse at 33% 66%, black 5%, transparent 40%),
+    conic-gradient(from var(--cursor-angle) at center, transparent 5%, black 15%, black 85%, transparent 95%);
+  mask-composite: subtract, add, add, add, add, add;
+  opacity: calc(var(--fill-opacity, 0.5) * (var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
+  mix-blend-mode: soft-light;
+}
+.str-card > .edge-light{
+  inset: calc(var(--glow-padding) * -1);
+  pointer-events: none;
+  z-index: 1;
+  mask-image:
+    conic-gradient(
+      from var(--cursor-angle) at center, black 2.5%, transparent 10%, transparent 90%, black 97.5%
+    );
+  opacity: calc((var(--edge-proximity) - var(--edge-sensitivity)) / (100 - var(--edge-sensitivity)));
+  mix-blend-mode: plus-lighter;
+}
+.str-card > .edge-light::before{
+  content: "";
+  position: absolute;
+  inset: var(--glow-padding);
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px var(--glow-color),
+    inset 0 0 1px 0 var(--glow-color-60),
+    inset 0 0 3px 0 var(--glow-color-50),
+    inset 0 0 6px 0 var(--glow-color-40),
+    inset 0 0 15px 0 var(--glow-color-30),
+    inset 0 0 25px 2px var(--glow-color-20),
+    inset 0 0 50px 2px var(--glow-color-10),
+    0 0 1px 0 var(--glow-color-60),
+    0 0 3px 0 var(--glow-color-50),
+    0 0 6px 0 var(--glow-color-40),
+    0 0 15px 0 var(--glow-color-30),
+    0 0 25px 2px var(--glow-color-20),
+    0 0 50px 2px var(--glow-color-10);
+}
+.str-card > *{position:relative;z-index:1}
+.str-card .str-icon{transition:border-color .3s,color .3s}
+.str-card:hover .str-icon{border-color:var(--accent);color:var(--accent)}
+html[data-theme="light"] .str-card{--card-bg:#fbfaf8;border-color:rgba(20,22,26,.14)}
+
+/* ===== 移动端适配 ===== */
+.nav-burger{display:none;width:40px;height:40px;border:1px solid var(--line-strong);background:transparent;border-radius:9px;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;transition:border-color .3s;flex-shrink:0}
+.nav-burger span{display:block;width:18px;height:2px;background:var(--text);border-radius:1px;transition:all .35s var(--ease)}
+body.menu-open .nav-burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+body.menu-open .nav-burger span:nth-child(2){opacity:0}
+body.menu-open .nav-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mobile-menu{display:none;position:fixed;inset:0;z-index:49;background:rgba(7,9,11,.94);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s ease}
+body.menu-open .mobile-menu{opacity:1;pointer-events:auto}
+.mobile-links{display:flex;flex-direction:column;align-items:center;gap:26px}
+.mobile-links a{font-size:21px;letter-spacing:.12em;color:var(--text);position:relative;padding:6px 0;transition:color .3s}
+.mobile-links a::after{content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:0;height:1px;background:var(--accent);transition:width .35s var(--ease)}
+.mobile-links a:hover{color:var(--accent)}
+.mobile-links a:hover::after{width:100%}
+html[data-theme="light"] .mobile-menu{background:rgba(242,241,238,.95)}
+
+@media (max-width:960px){
+  body.menu-open{overflow:hidden}
+  .nav-burger{display:flex}
+  .mobile-menu{display:flex}
+  .nav-actions .btn{display:none}
+  .wrap{padding:0 20px}
+  .nav-inner{height:62px}
+  .nav.scrolled .nav-inner{height:54px}
+  .nav.scrolled{top:12px;width:calc(100% - 24px);border-radius:14px}
+  .sec{padding:80px 0}
+  .sec-head{margin-bottom:40px}
+  .sec-title{font-size:clamp(30px,8vw,44px)}
+  .hero-inner{padding-top:20px}
+  .hero-title{font-size:clamp(34px,10vw,60px)}
+  .hero-kicker{font-size:10.5px;margin-bottom:22px}
+  .hero-line{margin:26px 0 22px}
+  .hero-sub{font-size:16.5px}
+  .hero-cta{margin-top:30px;gap:12px}
+  .hero-cta .btn{padding:12px 20px;font-size:12px}
+  .hero-meta{padding-top:60px;gap:14px 24px}
+  .hero-meta span{font-size:9.5px}
+  .about-grid{gap:34px}
+  .stats{margin-top:36px}
+  .proj-body{padding:24px 22px 26px}
+  .proj-body h3{font-size:18px}
+  .honor-body{padding:24px 22px 26px}
+  .honor-body h3{font-size:18px}
+  .hobby-body{padding:24px 22px 26px}
+  .hobby-body h3{font-size:19px}
+  .str-card{padding:28px 24px}
+  .contact-inner{padding:90px 0 30px}
+  .contact-title{font-size:clamp(32px,8.5vw,52px)}
+  .contact-sub{font-size:15px;margin-top:20px}
+  .contact-ways{margin-top:40px;gap:12px}
+  .contact-ways a{min-width:100%;padding:16px 24px}
+  .contact-foot{flex-direction:column;gap:14px;text-align:center;margin-top:90px}
+  .contact-foot span:nth-child(2){display:none}
+  .hobby-fact b{font-size:22px}
+  .hobby-fact span{font-size:9.5px}
+  .hp-txt b{font-size:14px}
+  .curtain-brand{font-size:18px}
+  .curtain-hint{font-size:10px;letter-spacing:.22em}
+  .curtain-hint-en{font-size:8.5px}
+}
+@media (max-width:480px){
+  .hero-meta{flex-direction:column;align-items:flex-start;gap:8px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .hobby-facts{grid-template-columns:repeat(3,1fr)}
+  .proj-card.wide .proj-cover{aspect-ratio:16/10}
+}
+@media (hover:none) and (pointer:coarse){
+  .about-card,.str-card{--edge-proximity:56;--cursor-angle:315deg}
+}
+
+</style>
+</head>
+<body>
+<div class="curtain" id="curtain" aria-hidden="true">
+  <span class="curtain-brand mono"><b>LJJ</b></span>
+  <span class="curtain-hint mono">♪ 点击进入 · 开启音乐</span>
+  <span class="curtain-hint-en mono">CLICK TO ENTER WITH SOUND</span>
+</div>
+<div class="grain"></div>
+
+<!-- 顶部导航 -->
+<header class="nav" id="navbar">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#home">
+      <span class="brand-mark"><b>LJJ</b></span>
+      <span class="brand-sub">CHEM·ENG / PORTFOLIO</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#home">首页</a>
+      <a href="#about">经历</a>
+      <a href="#honors">荣誉</a>
+      <a href="#projects">项目</a>
+      <a href="#strengths">优势</a>
+      <a href="#hobbies">爱好</a>
+      <a href="#contact">联系</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="theme-toggle music-toggle" id="musicToggle" aria-label="Background music" title="背景音乐">
+        <svg class="icon-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
+      </button>
+      <button class="theme-toggle" id="themeToggle" aria-label="切换深浅主题" title="切换深浅主题">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.5 1.5M17.9 17.9l1.5 1.5M2.5 12h2M19.5 12h2M4.6 19.4l1.5-1.5M17.9 6.1l1.5-1.5"/></svg>
+      </button>
+      <a class="btn btn-ghost" href="#contact">与我联系</a>
+      <button class="nav-burger" id="navBurger" aria-label="菜单" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <nav class="mobile-links">
+    <a href="#home">首页</a>
+    <a href="#about">经历</a>
+    <a href="#honors">荣誉</a>
+    <a href="#projects">项目</a>
+    <a href="#strengths">优势</a>
+    <a href="#hobbies">爱好</a>
+    <a href="#contact">联系</a>
+  </nav>
+</div>
+<main>
+  <!-- ============ 01 全屏首页 Hero ============ -->
+  <section class="hero" id="home">
+    <div class="hero-media">
+      <!-- 首屏背景图 -->
+      <img id="heroBg" src="assets/hero-bg.jpg" alt="" />
+      <!-- 无视频时自动使用分子场动画背景 -->
+      <canvas id="moleculeCanvas"></canvas>
+    </div>
+    <div class="hero-overlay"></div>
+    <!-- 右侧发光核心：参考首屏参考图的中央光体 -->
+    <div class="hero-visual" aria-hidden="true">
+      <span class="orb orb-core"></span>
+      <span class="orb orb-ring"></span>
+      <span class="orb orb-ring r2"></span>
+      <span class="orb orb-ring r3"></span>
+      <span class="dot d1"></span>
+      <span class="dot d2"></span>
+      <span class="dot d3"></span>
+      <span class="dot d4"></span>
+      <span class="dot d5"></span>
+    </div>
+
+    <div class="wrap hero-inner">
+      <div class="hero-ghost mono" aria-hidden="true">CHEM-ENG</div>
+      <p class="hero-kicker mono">PORTFOLIO · 2026 · CHANGSHA</p>
+      <h1 class="hero-title">LI JIAJU</h1>
+      <p class="hero-name-sub">李家驹</p>
+      <div class="hero-line"></div>
+      <p class="hero-sub">
+        以分子为语言，探索物质与能量的边界。<br />
+        <span>化学工程与工艺</span> · 湖南师范大学 · 大一
+      </p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#contact">与我联系</a>
+        <a class="btn btn-ghost" href="#projects">查看项目</a>
+      </div>
+      <div class="hero-meta">
+        <span><i>LOC</i> / CHANGSHA · CN</span>
+        <span><i>GEO</i> / 28.19°N 112.97°E</span>
+        <span><i>MAJ</i> / CHEMICAL ENGINEERING</span>
+        <span><i>EST</i> / 2025</span>
+      </div>
+    </div>
+
+    <div class="hero-side mono" aria-hidden="true">HUNAN NORMAL UNIVERSITY</div>
+    <a class="hero-scroll mono" href="#about">SCROLL<span></span></a>
+  </section>
+
+  <!-- ============ 02 个人经历 ============ -->
+  <section class="sec about" id="about">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="sec-index mono">01 / ABOUT</p>
+        <h2 class="sec-title">个人经历</h2>
+        <div class="sec-rule"></div>
+      </header>
+<div class="about-grid">
+        <!-- 左侧：头像 / 人物卡 -->
+        <div class="about-card reveal" style="--d:.08s">
+            <span class="edge-light" aria-hidden="true"></span>
+          <div class="avatar">
+            <div class="avatar-bg"></div>
+            <svg class="avatar-hex" viewBox="0 0 300 300" fill="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="mg" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#ff6b4a"/>
+                  <stop offset="1" stop-color="#8f3a22"/>
+                </linearGradient>
+              </defs>
+              <g class="ring" stroke="rgba(255,107,74,.4)" stroke-width="1">
+                <polygon points="150,52 235,101 235,199 150,248 65,199 65,101"/>
+                <circle cx="150" cy="52" r="5" fill="rgba(255,107,74,.5)"/>
+                <circle cx="235" cy="101" r="4" fill="rgba(255,107,74,.35)"/>
+                <circle cx="235" cy="199" r="4" fill="rgba(255,107,74,.35)"/>
+                <circle cx="150" cy="248" r="6" fill="url(#mg)"/>
+                <circle cx="65" cy="199" r="4" fill="rgba(255,107,74,.35)"/>
+                <circle cx="65" cy="101" r="4" fill="rgba(255,107,74,.35)"/>
+              </g>
+              <g stroke="rgba(255,107,74,.14)" stroke-width="1">
+                <polygon points="150,112 202,138 202,190 150,216 98,190 98,138"/>
+              </g>
+            </svg>
+            <!-- AVATAR-IMG：有照片后，把上面的占位替换为下面这行 -->
+            <!-- <img src="assets/avatar.jpg" alt="李家驹" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" /> -->
+            <div class="avatar-initial">李</div>
+            <div class="avatar-tag mono"><span>PORTRAIT</span><span>HUNNU·CEE</span></div>
+          </div>
+          <div class="about-id mono">
+            <span>LI JIAJU</span><span>B.Eng. CANDIDATE</span>
+          </div>
+        </div>
+
+        <!-- 右侧：介绍 / 联系方式 / 数据 -->
+        <div class="about-body">
+          <div class="about-text reveal" style="--d:.12s">
+            <p>
+              我是<em>李家驹</em>，湖南师范大学化学工程与工艺专业学生。
+              我相信化工不只是方程与流程图，更是一门关于「转化」的学科——
+              把原料变成材料，把想法变成现实。
+            </p>
+            <p>
+              现阶段的我，正以扎实的课程学习与每一次实验为起点，
+              逐步建立<em>从分子到流程</em>的完整视野，并尝试用代码把实验数据变成可复用的结论。
+            </p>
+          </div>
+
+          <div class="contact-list reveal" style="--d:.2s">
+            <div class="contact-row">
+              <span class="k">EMAIL</span>
+              <span class="v"><a href="mailto:3149019184@qq.com">3149019184@qq.com</a></span>
+            </div>
+            <div class="contact-row">
+              <span class="k">WECHAT</span>
+              <span class="v">j23iaju</span>
+            </div>
+            <div class="contact-row">
+              <span class="k">TEL</span>
+              <span class="v">+86 135-1154-1179</span>
+            </div>
+            <div class="contact-row">
+              <span class="k">LOCATION</span>
+              <span class="v">长沙 · 湖南师范大学</span>
+            </div>
+          </div>
+
+          <div class="stats reveal" style="--d:.28s">
+            <div class="stat">
+              <b><i data-count="4" data-suffix="+">0</i></b>
+              <span>项目实践</span>
+            </div>
+            <div class="stat">
+              <b><i data-count="20" data-suffix="+">0</i></b>
+              <span>课程实验</span>
+            </div>
+            <div class="stat">
+              <b><i data-count="30" data-suffix="+">0</i></b>
+              <span>文献阅读</span>
+            </div>
+            <div class="stat">
+              <b><i data-count="500" data-suffix="+">0</i></b>
+              <span>学习时长 / 小时</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 荣誉资质 ============ -->
+  <section class="sec honors" id="honors">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="sec-index mono">02 / HONORS</p>
+        <h2 class="sec-title">荣誉资质</h2>
+        <div class="sec-rule"></div>
+      </header>
+<div class="honors-grid">
+        <article class="honor-card reveal">
+          <div class="honor-cover">
+            <span class="honor-tag mono">AWARD / CCHO</span>
+            <div class="honor-img"><img src="assets/award-chemistry.jpg" alt="第39届中国化学奥林匹克一等奖" loading="lazy" decoding="async" /></div>
+          </div>
+          <div class="honor-body">
+            <h3>第39届中国化学奥林匹克 · 一等奖 <span class="arr">→</span></h3>
+            <p>在第39届中国化学奥林匹克竞赛中荣获一等奖，是对扎实化学功底与长期系统训练的最好证明。</p>
+            <div class="proj-meta">
+              <span class="chip">化学竞赛</span><span class="chip">一等奖</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="honor-card reveal" style="--d:.08s">
+          <div class="honor-cover">
+            <span class="honor-tag mono">SKILL / AI</span>
+            <div class="honor-img"><img src="assets/cert-ai-trainer.jpg" alt="人工智能训练师职业技能证书" loading="lazy" decoding="async" /></div>
+          </div>
+          <div class="honor-body">
+            <h3>人工智能训练师 · 职业技能证书 <span class="arr">→</span></h3>
+            <p>通过人工智能训练师职业技能考核，具备数据标注、模型训练与效果评估的基础实践能力，体现跨学科学习的态度。</p>
+            <div class="proj-meta">
+              <span class="chip">人工智能</span><span class="chip">技能认证</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 精选项目 ============ -->
+  <section class="sec projects" id="projects">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="sec-index mono">03 / PROJECTS</p>
+        <h2 class="sec-title">精选项目</h2>
+        <div class="sec-rule"></div>
+      </header>
+<div class="proj-grid">
+        <!-- 项目 01 -->
+        <article class="proj-card reveal">
+          <div class="proj-cover">
+            <span class="proj-tag mono">CHEMICAL ENGINEERING</span>
+            <span class="proj-index mono">P-01</span>
+            <svg class="cover-art" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <linearGradient id="c1" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#ff6b4a" stop-opacity=".9"/>
+                  <stop offset="1" stop-color="#8f3a22" stop-opacity=".2"/>
+                </linearGradient>
+                <radialGradient id="g1" cx=".5" cy=".5" r=".5">
+                  <stop offset="0" stop-color="rgba(255,107,74,.12)"/>
+                  <stop offset="1" stop-color="rgba(255,107,74,0)"/>
+                </radialGradient>
+              </defs>
+              <rect width="800" height="500" fill="#0b0f12"/>
+              <rect width="800" height="500" fill="url(#g1)"/>
+              <g stroke="rgba(255,255,255,.045)">
+                <path d="M0 125H800M0 250H800M0 375H800M200 0V500M400 0V500M600 0V500"/>
+              </g>
+              <path d="M330 80 H470 L500 420 H300 Z" fill="none" stroke="url(#c1)" stroke-width="2"/>
+              <g stroke="rgba(255,107,74,.35)" stroke-width="1">
+                <path d="M335 130 H465"/><path d="M338 180 H462"/><path d="M340 230 H460"/>
+                <path d="M343 280 H457"/><path d="M346 330 H454"/><path d="M349 380 H451"/>
+              </g>
+              <g stroke="rgba(255,107,74,.55)" stroke-width="1.4" fill="none">
+                <path d="M320 110 C 250 100, 245 62, 300 48 C 345 38, 405 48, 420 76"/>
+                <path d="M335 150 C 235 150, 228 205, 300 218"/>
+              </g>
+              <circle cx="420" cy="76" r="4.5" fill="#ff6b4a"/>
+              <circle cx="300" cy="218" r="3.5" fill="#ff6b4a"/>
+              <text x="320" y="460" fill="rgba(255,255,255,.28)" font-size="11" font-family="monospace" letter-spacing="4">DISTILLATION · McCABE-THIELE</text>
+            </svg>
+          </div>
+          <div class="proj-body">
+            <h3>化工原理 · 精馏塔分离过程仿真 <span class="arr">→</span></h3>
+            <p>以二元物系为例，完成精馏塔物料衡算与塔板数计算，绘制 McCabe-Thiele 图解，分析回流比对分离效果与能耗的影响。</p>
+            <div class="proj-meta">
+              <span class="chip">化工原理</span><span class="chip">流程计算</span><span class="chip">仿真模拟</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- 项目 02 -->
+        <article class="proj-card reveal" style="--d:.08s">
+          <div class="proj-cover">
+            <span class="proj-tag mono">DATA ANALYSIS</span>
+            <span class="proj-index mono">P-02</span>
+            <svg class="cover-art" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <linearGradient id="c2" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="#ff6b4a" stop-opacity=".1"/>
+                  <stop offset="1" stop-color="#ff6b4a" stop-opacity=".5"/>
+                </linearGradient>
+                <radialGradient id="g2" cx=".5" cy=".5" r=".5">
+                  <stop offset="0" stop-color="rgba(255,107,74,.12)"/>
+                  <stop offset="1" stop-color="rgba(255,107,74,0)"/>
+                </radialGradient>
+              </defs>
+              <rect width="800" height="500" fill="#0b0f12"/>
+              <rect width="800" height="500" fill="url(#g2)"/>
+              <g stroke="rgba(255,255,255,.045)">
+                <path d="M0 100H800M0 200H800M0 300H800M0 400H800M160 0V500M320 0V500M480 0V500M640 0V500"/>
+              </g>
+              <path d="M120 380 L150 330 L210 352 L280 258 L340 292 L400 196 L460 242 L540 148 L620 212 L700 118 L700 410 L120 410 Z"
+                fill="url(#c2)" stroke="none"/>
+              <path d="M120 380 L150 330 L210 352 L280 258 L340 292 L400 196 L460 242 L540 148 L620 212 L700 118"
+                fill="none" stroke="#ff6b4a" stroke-width="2.4"/>
+              <g fill="#ff9278">
+                <circle cx="150" cy="330" r="4"/><circle cx="280" cy="258" r="4"/>
+                <circle cx="400" cy="196" r="4.5"/><circle cx="540" cy="148" r="4"/>
+                <circle cx="700" cy="118" r="4.5"/>
+              </g>
+              <text x="600" y="455" fill="rgba(255,255,255,.28)" font-size="11" font-family="monospace" letter-spacing="4">DATA · FITTING & VISUALIZATION</text>
+            </svg>
+          </div>
+          <div class="proj-body">
+            <h3>Python 实验数据处理与可视化 <span class="arr">→</span></h3>
+            <p>对滴定与反应动力学实验数据进行清洗、拟合与可视化，沉淀出一套可复用的分析脚本，让结论更快、更清晰。</p>
+            <div class="proj-meta">
+              <span class="chip">Python</span><span class="chip">数据分析</span><span class="chip">可视化</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- 项目 03 -->
+        <article class="proj-card reveal">
+          <div class="proj-cover">
+            <span class="proj-tag mono">INTERACTIVE WEB</span>
+            <span class="proj-index mono">P-03</span>
+            <svg class="cover-art" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <radialGradient id="g3" cx=".5" cy=".5" r=".5">
+                  <stop offset="0" stop-color="rgba(255,107,74,.12)"/>
+                  <stop offset="1" stop-color="rgba(255,107,74,0)"/>
+                </radialGradient>
+                <pattern id="pg" width="46" height="46" patternUnits="userSpaceOnUse">
+                  <rect width="46" height="46" fill="none" stroke="rgba(255,255,255,.05)"/>
+                </pattern>
+              </defs>
+              <rect width="800" height="500" fill="#0b0f12"/>
+              <rect width="800" height="500" fill="url(#g3)"/>
+              <rect width="800" height="500" fill="url(#pg)"/>
+              <g font-family="monospace" font-size="11" fill="rgba(255,255,255,.32)">
+                <text x="120" y="110">H</text><text x="180" y="110">He</text>
+                <text x="120" y="170">Li</text><text x="180" y="170">Be</text>
+                <text x="440" y="170">B</text><text x="500" y="170">C</text>
+                <text x="560" y="170">N</text><text x="620" y="170">O</text>
+                <text x="120" y="230">Na</text><text x="180" y="230">Mg</text>
+                <text x="500" y="230">Si</text><text x="620" y="230">S</text>
+                <text x="120" y="290">K</text><text x="180" y="290">Ca</text>
+              </g>
+              <g fill="rgba(255,107,74,.22)">
+                <rect x="490" y="150" width="38" height="38"/>
+                <rect x="550" y="150" width="38" height="38"/>
+                <rect x="610" y="150" width="38" height="38"/>
+                <rect x="490" y="210" width="38" height="38"/>
+              </g>
+              <g fill="#ff6b4a">
+                <rect x="110" y="90" width="38" height="38"/>
+                <rect x="490" y="150" width="38" height="38" fill="none" stroke="#ff6b4a"/>
+              </g>
+              <text x="120" y="455" fill="rgba(255,255,255,.28)" font-size="11" font-family="monospace" letter-spacing="4">PERIODIC TABLE · INTERACTIVE</text>
+            </svg>
+          </div>
+          <div class="proj-body">
+            <h3>元素周期表互动站 <span class="arr">→</span></h3>
+            <p>用 HTML / CSS / JavaScript 制作的交互式周期表：点击元素查看原子序数、常见价态与典型化合物，作为化学科普小工具。</p>
+            <div class="proj-meta">
+              <span class="chip">前端开发</span><span class="chip">交互设计</span><span class="chip">化学科普</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- 项目 04 -->
+        <article class="proj-card reveal" style="--d:.08s">
+          <div class="proj-cover">
+            <span class="proj-tag mono">RESEARCH · SUSTAINABILITY</span>
+            <span class="proj-index mono">P-04</span>
+            <svg class="cover-art" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <radialGradient id="g4" cx=".5" cy=".5" r=".5">
+                  <stop offset="0" stop-color="rgba(255,107,74,.12)"/>
+                  <stop offset="1" stop-color="rgba(255,107,74,0)"/>
+                </radialGradient>
+                <pattern id="hx" width="70" height="60" patternUnits="userSpaceOnUse">
+                  <path d="M35 0 L70 20 L70 60 L35 80 L0 60 L0 20 Z" fill="none" stroke="rgba(255,255,255,.05)"/>
+                </pattern>
+              </defs>
+              <rect width="800" height="500" fill="#0b0f12"/>
+              <rect width="800" height="500" fill="url(#g4)"/>
+              <rect width="800" height="500" fill="url(#hx)"/>
+              <g stroke="rgba(255,107,74,.6)" stroke-width="1.6" fill="none">
+                <path d="M220 200 L300 160 L380 200 L380 280 L300 320 L220 280 Z"/>
+                <path d="M460 160 L540 120 L620 160 L620 240 L540 280 L460 240 Z"/>
+              </g>
+              <g stroke="rgba(255,107,74,.3)" stroke-width="1.2" fill="none">
+                <path d="M300 160 L460 160"/><path d="M380 200 L540 200"/>
+                <path d="M380 280 L540 240"/>
+              </g>
+              <g>
+                <circle cx="300" cy="160" r="5" fill="#ff6b4a"/>
+                <circle cx="540" cy="120" r="5" fill="#ff6b4a"/>
+                <circle cx="620" cy="240" r="5" fill="#ff6b4a"/>
+                <circle cx="220" cy="280" r="4" fill="rgba(255,107,74,.6)"/>
+              </g>
+              <text x="238" y="440" fill="rgba(255,255,255,.28)" font-size="11" font-family="monospace" letter-spacing="4">BIOMASS · CIRCULAR CHEMISTRY</text>
+            </svg>
+          </div>
+          <div class="proj-body">
+            <h3>校园调研 · 生物质资源化利用 <span class="arr">→</span></h3>
+            <p>参与小组调研，梳理秸秆等生物质废弃物的转化路径与实验室案例，完成一份面向科普的图文报告。</p>
+            <div class="proj-meta">
+              <span class="chip">调研报告</span><span class="chip">可持续</span><span class="chip">团队协作</span>
+            </div>
+          </div>
+        </article>
+        <a class="proj-card wide reveal" style="--d:.06s" href="飞机大战/index.html" target="_blank" rel="noopener">
+          <div class="proj-cover">
+            <span class="proj-tag mono">WEB GAME · CANVAS</span>
+            <span class="proj-index mono">P-05</span>
+            <svg class="cover-art" viewBox="0 0 1600 690" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <radialGradient id="pl1" cx=".5" cy=".5" r=".5">
+                  <stop offset="0" stop-color="rgba(255,107,74,.14)"/>
+                  <stop offset="1" stop-color="rgba(255,107,74,0)"/>
+                </radialGradient>
+              </defs>
+              <rect width="1600" height="690" fill="#0b0f12"/>
+              <rect width="1600" height="690" fill="url(#pl1)"/>
+              <g stroke="rgba(255,255,255,.05)">
+                <path d="M0 138H1600M0 276H1600M0 414H1600M0 552H1600M320 0V690M640 0V690M960 0V690M1280 0V690"/>
+              </g>
+              <g stroke="#ff6b4a" stroke-width="2" opacity=".75">
+                <path d="M560 330 L900 300"/><path d="M540 350 L880 360"/><path d="M550 315 L860 242"/>
+              </g>
+              <g fill="#ff6b4a">
+                <circle cx="900" cy="300" r="4.5"/><circle cx="880" cy="360" r="4.5"/><circle cx="860" cy="242" r="4.5"/>
+              </g>
+              <g fill="rgba(255,107,74,.5)">
+                <path d="M1180 180 l26 -18 l26 18 l-26 20 z"/>
+                <path d="M1300 430 l26 -18 l26 18 l-26 20 z"/>
+                <path d="M1420 252 l22 -15 l22 15 l-22 17 z"/>
+              </g>
+              <g stroke="#ff6b4a" stroke-width="2" fill="none">
+                <path d="M520 330 L360 305 L330 330 L360 355 Z"/>
+                <path d="M470 330 L420 278 L455 330 Z"/>
+                <path d="M470 330 L420 382 L455 330 Z"/>
+                <path d="M360 315 L330 300 M360 345 L330 360"/>
+              </g>
+              <g stroke="#ff6b4a" fill="none" opacity=".9">
+                <circle cx="1010" cy="320" r="74" stroke-width="2"/>
+                <path d="M1010 236 L1010 254 M1010 386 L1010 404 M928 320 L946 320 M1074 320 L1092 320"/>
+                <circle cx="1010" cy="320" r="6" fill="#ff6b4a" stroke="none"/>
+              </g>
+              <text x="80" y="622" fill="rgba(255,255,255,.25)" font-size="14" font-family="monospace" letter-spacing="6">PLANE BATTLE · 10 LEVELS · BOSS FIGHT</text>
+            </svg>
+          </div>
+          <div class="proj-body">
+            <h3>飞机大战 · 十关卡网页射击游戏 <span class="arr">→</span></h3>
+            <p>基于原生 HTML / CSS / JS + Canvas 2D 的网页射击游戏，零依赖、单文件运行：10 个关卡、Boss 战、多战机解锁（钢铁凶兽 / 银色流星 / 赛道魔术 / 隐藏战机）与专属技能系统。</p>
+            <div class="proj-meta">
+              <span class="chip">Canvas 2D</span><span class="chip">原生 JS</span><span class="chip">游戏开发</span>
+            </div>
+            <span class="proj-open mono">OPEN DEMO ↗</span>
+          </div>
+        </a>
+
+        <a class="proj-card reveal" style="--d:.06s" href="tanke/index.html" target="_blank" rel="noopener">
+          <div class="proj-cover">
+            <span class="proj-tag mono">WEB GAME · CANVAS</span>
+            <span class="proj-index mono">P-06</span>
+            <svg class="cover-art" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <radialGradient id="tk1" cx=".5" cy=".5" r=".5">
+                  <stop offset="0" stop-color="rgba(255,107,74,.14)"/>
+                  <stop offset="1" stop-color="rgba(255,107,74,0)"/>
+                </radialGradient>
+              </defs>
+              <rect width="800" height="500" fill="#0b0f12"/>
+              <rect width="800" height="500" fill="url(#tk1)"/>
+              <g stroke="rgba(255,255,255,.05)">
+                <path d="M0 125H800M0 250H800M0 375H800M160 0V500M320 0V500M480 0V500M640 0V500"/>
+              </g>
+              <g stroke="rgba(255,255,255,.14)" stroke-width="1.4" fill="none">
+                <path d="M120 120 h60 v30 h-60 z"/>
+                <path d="M360 420 h70 v28 h-70 z"/>
+                <path d="M640 300 h70 v28 h-70 z"/>
+              </g>
+              <g stroke="#ff6b4a" stroke-width="2.4" fill="none">
+                <rect x="180" y="280" width="150" height="46" rx="8"/>
+                <rect x="235" y="250" width="52" height="34" rx="4"/>
+                <path d="M287 267 L430 240"/>
+                <path d="M215 326 L170 346 M240 326 L195 346 M265 326 L220 346 M290 326 L245 346"/>
+                <rect x="140" y="326" width="230" height="22" rx="11"/>
+              </g>
+              <g fill="rgba(255,107,74,.55)"><circle cx="432" cy="239" r="5"/></g>
+              <g stroke="rgba(255,255,255,.4)" stroke-width="2" fill="none">
+                <rect x="540" y="150" width="110" height="36" rx="6"/>
+                <path d="M595 186 L560 220"/>
+                <rect x="515" y="186" width="160" height="18" rx="9"/>
+              </g>
+              <g fill="rgba(255,255,255,.55)"><circle cx="558" cy="221" r="4"/></g>
+              <text x="90" y="455" fill="rgba(255,255,255,.25)" font-size="11" font-family="monospace" letter-spacing="4">TANK BATTLE · LEVEL &amp; SCORE</text>
+            </svg>
+          </div>
+          <div class="proj-body">
+            <h3>坦克大战 · 经典对战网页版 <span class="arr">→</span></h3>
+            <p>经典坦克大战的浏览器实现：Canvas 实时渲染、关卡与分数系统、敌我 AI 对战，支持触屏操作，打开即玩。</p>
+            <div class="proj-meta">
+              <span class="chip">Canvas 2D</span><span class="chip">游戏开发</span><span class="chip">移动适配</span>
+            </div>
+            <span class="proj-open mono">OPEN DEMO ↗</span>
+          </div>
+        </a>
+
+        <a class="proj-card reveal" href="粒子动效/index.html" target="_blank" rel="noopener">
+          <div class="proj-cover">
+            <span class="proj-tag mono">INTERACTIVE · GESTURE</span>
+            <span class="proj-index mono">P-07</span>
+            <svg class="cover-art" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <radialGradient id="pa1" cx=".5" cy=".5" r=".5">
+                  <stop offset="0" stop-color="rgba(255,107,74,.16)"/>
+                  <stop offset="1" stop-color="rgba(255,107,74,0)"/>
+                </radialGradient>
+              </defs>
+              <rect width="800" height="500" fill="#0b0f12"/>
+              <rect width="800" height="500" fill="url(#pa1)"/>
+              <g stroke="rgba(255,255,255,.05)">
+                <path d="M0 125H800M0 250H800M0 375H800M160 0V500M320 0V500M480 0V500M640 0V500"/>
+              </g>
+              <g stroke="rgba(255,150,120,.4)" stroke-width="1">
+                <path d="M200 180 L320 150 L420 220 L380 340 L260 360 L180 300 Z"/>
+                <path d="M320 150 L520 120 L580 220 L500 300 L380 340"/>
+                <path d="M580 220 L660 260 L640 380 L500 300"/>
+              </g>
+              <g fill="#ff6b4a">
+                <circle cx="200" cy="180" r="5"/><circle cx="320" cy="150" r="7"/>
+                <circle cx="420" cy="220" r="4"/><circle cx="380" cy="340" r="4"/>
+                <circle cx="260" cy="360" r="5"/><circle cx="180" cy="300" r="4"/>
+              </g>
+              <g fill="rgba(255,150,120,.75)">
+                <circle cx="520" cy="120" r="4"/><circle cx="580" cy="220" r="5"/>
+                <circle cx="500" cy="300" r="4"/><circle cx="660" cy="260" r="4"/>
+                <circle cx="640" cy="380" r="3"/>
+              </g>
+              <circle cx="320" cy="150" r="16" fill="none" stroke="#ff6b4a" stroke-width="1.2" opacity=".6"/>
+              <circle cx="320" cy="150" r="26" fill="none" stroke="#ff6b4a" stroke-width=".8" opacity=".35"/>
+              <text x="90" y="455" fill="rgba(255,255,255,.25)" font-size="11" font-family="monospace" letter-spacing="4">PARTICLE · GESTURE CONTROL</text>
+            </svg>
+          </div>
+          <div class="proj-body">
+            <h3>粒子动效 · 手势交互粒子星球 <span class="arr">→</span></h3>
+            <p>基于 MediaPipe 手势识别的交互式粒子星球：挥手控制粒子流、捏合充能、实时帧率与空间音效，浏览器端运行。</p>
+            <div class="proj-meta">
+              <span class="chip">手势识别</span><span class="chip">Canvas</span><span class="chip">交互设计</span>
+            </div>
+            <span class="proj-open mono">OPEN DEMO ↗</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 个人优势 ============ -->
+  <section class="sec strengths" id="strengths">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="sec-index mono">04 / STRENGTHS</p>
+        <h2 class="sec-title">个人优势</h2>
+        <div class="sec-rule"></div>
+      </header>
+<div class="str-grid">
+        <div class="str-card reveal">
+            <span class="edge-light" aria-hidden="true"></span>
+
+          <span class="str-num mono">01</span>
+          <div class="str-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M9 3h6M10 3v6.5L5.2 18a2 2 0 0 0 1.8 3h10a2 2 0 0 0 1.8-3L14 9.5V3"/>
+              <path d="M7.5 15h9"/>
+            </svg>
+          </div>
+          <h3>实验素养</h3>
+          <p>规范操作与安全意识并重，重视实验记录、误差分析与结果复现。</p>
+        </div>
+
+        <div class="str-card reveal" style="--d:.06s">
+            <span class="edge-light" aria-hidden="true"></span>
+
+          <span class="str-num mono">02</span>
+          <div class="str-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M3 17l5-6 4 3 6-8 3 3"/>
+              <path d="M3 21h18"/>
+            </svg>
+          </div>
+          <h3>数据分析</h3>
+          <p>熟悉 Python 与常用可视化工具，习惯从数据中寻找规律、验证假设。</p>
+        </div>
+
+        <div class="str-card reveal" style="--d:.12s">
+            <span class="edge-light" aria-hidden="true"></span>
+
+          <span class="str-num mono">03</span>
+          <div class="str-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/>
+              <path d="M8 7h8M8 11h8M8 15h5"/>
+            </svg>
+          </div>
+          <h3>文献检索</h3>
+          <p>能使用中英文数据库检索与整理文献，具备专业英文阅读与提炼能力。</p>
+        </div>
+
+        <div class="str-card reveal">
+            <span class="edge-light" aria-hidden="true"></span>
+
+          <span class="str-num mono">04</span>
+          <div class="str-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M13 2L4.5 13.5H11L9.5 22 19 9.5h-6.5z"/>
+            </svg>
+          </div>
+          <h3>快速学习</h3>
+          <p>面对新工具与跨学科知识能快速上手，习惯「先跑通、再优化」的落地方式。</p>
+        </div>
+
+        <div class="str-card reveal" style="--d:.06s">
+            <span class="edge-light" aria-hidden="true"></span>
+
+          <span class="str-num mono">05</span>
+          <div class="str-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M12 3v18M3 12h18"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <h3>逻辑拆解</h3>
+          <p>习惯把复杂问题拆成可执行的小步骤，按计划逐步推进并持续复盘。</p>
+        </div>
+
+        <div class="str-card reveal" style="--d:.12s">
+            <span class="edge-light" aria-hidden="true"></span>
+
+          <span class="str-num mono">06</span>
+          <div class="str-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M8 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6zM16 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+              <path d="M2 21c0-4 2.5-6 6-6s6 2 6 6M14 15c3.5 0 6 2 6 6"/>
+            </svg>
+          </div>
+          <h3>表达协作</h3>
+          <p>能在小组项目中清晰表达观点、主动分工，乐于分享经验与复盘结果。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ============ 06 兴趣爱好 ============ -->
+  <section class="sec hobbies" id="hobbies">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="sec-index mono">05 / HOBBIES</p>
+        <h2 class="sec-title">兴趣爱好</h2>
+        <div class="sec-rule"></div>
+      </header>
+<div class="hobby-grid">
+        <!-- 篮球 -->
+        <article class="hobby-card reveal">
+          <div class="hobby-cover">
+            <span class="hobby-tag mono">BASKETBALL</span>
+            <span class="hobby-idx mono">01</span>
+            <img src="assets/hobby-lebron.jpg" alt="勒布朗·詹姆斯 LeBron James" loading="lazy" decoding="async" />
+          </div>
+          <div class="hobby-body">
+            <p class="hobby-kicker mono">HOOPS · 篮球</p>
+            <h3>篮球 <span>BASKETBALL</span></h3>
+            <p class="hobby-desc">球场上的奔跑与对抗是我最好的放松。从战术配合到关键时刻的抗压，篮球教会我的不止输赢——还有团队、纪律与不服输的韧性。</p>
+            <div class="hobby-facts">
+              <div class="hobby-fact"><b><i>4</i></b><span>NBA 总冠军</span></div>
+              <div class="hobby-fact"><b><i>4</i></b><span>总决赛 MVP</span></div>
+              <div class="hobby-fact"><b><i>1</i></b><span>NBA 历史得分王</span></div>
+            </div>
+            <p class="hobby-sign"><b>偶像 IDOL</b> 勒布朗·詹姆斯 —— "Strive for greatness." 为伟大而战。</p>
+          </div>
+        </article>
+
+        <!-- 音乐 -->
+        <article class="hobby-card reveal" style="--d:.08s">
+          <div class="hobby-cover">
+            <span class="hobby-tag mono">MUSIC</span>
+            <span class="hobby-idx mono">02</span>
+            <img src="assets/hobby-jay.jpg" alt="周杰伦 Jay Chou" loading="lazy" decoding="async" />
+          </div>
+          <div class="hobby-body">
+            <p class="hobby-kicker mono">MELODY · 音乐</p>
+            <h3>音乐 <span>MUSIC</span></h3>
+            <p class="hobby-desc">写作业、通勤与睡前的背景宇宙。华语流行与 R&amp;B 陪伴我长大，让我在化学与代码之外，多一种表达与共鸣的方式。</p>
+            <div class="hobby-facts">
+              <div class="hobby-fact"><b><i>15</i></b><span>金曲奖 · 获奖最多</span></div>
+              <div class="hobby-fact"><b><i>4</i></b><span>最佳国语专辑</span></div>
+              <div class="hobby-fact"><b><i>#1</i></b><span>全球专辑销量冠军</span></div>
+            </div>
+            <p class="hobby-sign"><b>代表作 SIGNATURE</b> 《青花瓷》·《七里香》·《双截棍》</p>
+            <div class="hobby-player">
+              <div class="hp-info">
+                <span class="hp-note">♪</span>
+                <div class="hp-txt">
+                  <b>月光下的妹妹</b>
+                  <span>初中创作的歌曲，在 AI 的帮助下得以焕发生机</span>
+                  <span class="hp-en">A JUNIOR-HIGH SONG, REVIVED WITH AI</span>
+                </div>
+              </div>
+              <div class="hp-controls">
+                <button class="hp-play" id="hobbyPlay" aria-label="播放歌曲">
+                  <svg class="ic-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  <svg class="ic-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+                </button>
+                <div class="hp-progress" id="hobbyProgress"><div class="hp-bar" id="hobbyBar"></div></div>
+                <span class="hp-time" id="hobbyTime">0:00 / 4:25</span>
+              </div>
+            </div>
+
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ 07 结尾 · 整屏收尾 ============ -->
+<footer class="contact" id="contact">
+  <div class="contact-glow"></div>
+  <div class="contact-ghost mono" aria-hidden="true">CONTACT</div>
+  <div class="wrap contact-inner">
+    <p class="sec-index mono contact-kicker reveal">06 / CONTACT</p>
+    <h2 class="contact-title reveal" style="--d:.06s">一起，探索化学的<br /><span>更多可能。</span></h2>
+    <p class="contact-sub reveal" style="--d:.12s">无论是实验、代码还是创意，欢迎随时与我聊聊。</p>
+    <div class="contact-ways reveal" style="--d:.2s">
+      <a href="mailto:3149019184@qq.com">EMAIL<small>3149019184@qq.com</small></a>
+      <a href="#">WECHAT<small>j23iaju</small></a>
+      <a href="tel:+8613511541179">TEL<small>+86 135-1154-1179</small></a>
+    </div>
+    <div class="contact-foot reveal" style="--d:.28s">
+      <span>© <span id="year">2026</span> 李家驹 · 湖南师范大学</span>
+      <span>CHEMICAL ENGINEERING &amp; TECHNOLOGY</span>
+      <a href="#home">回到顶部 ↑</a>
+    </div>
+  </div>
+</footer>
+
+<audio id="bgMusic" src="assets/bg-music.mp3" loop preload="metadata"></audio>
+<audio id="hobbySong" src="assets/hobby-music.mp3" preload="metadata"></audio>
+<script src="assets/gsap.min.js"></script>
+<script src="assets/ScrollTrigger.min.js"></script>
+<script>
+document.documentElement.classList.add('js');
+(function () {
+  'use strict';
+  var siteEntered = false;
+
+  /* 年份 */
+  var yr = document.getElementById('year');
+  if (yr) yr.textContent = new Date().getFullYear();
+
+  /* 导航栏滚动状态 */
+  var nav = document.getElementById('navbar');
+  var navTicking = false;
+  window.addEventListener('scroll', function () {
+    if (navTicking) return;
+    navTicking = true;
+    requestAnimationFrame(function () {
+      var hero = document.getElementById('home');
+      var past = hero ? (window.scrollY > hero.offsetHeight - 120) : (window.scrollY > 600);
+      if (nav) nav.classList.toggle('scrolled', past);
+      navTicking = false;
+    });
+  }, { passive: true });
+
+  /* 滚动浮现动画 */
+  /* BorderGlow（个人经历卡片，React Bits） */
+  var glowCard = document.querySelector('.about-card');
+  if (glowCard) {
+    function glowCenter(el) { var r = el.getBoundingClientRect(); return [r.width / 2, r.height / 2]; }
+    function glowEdge(el, x, y) {
+      var c = glowCenter(el);
+      var dx = x - c[0], dy = y - c[1];
+      var kx = Infinity, ky = Infinity;
+      if (dx !== 0) kx = c[0] / Math.abs(dx);
+      if (dy !== 0) ky = c[1] / Math.abs(dy);
+      return Math.min(Math.max(1 / Math.min(kx, ky), 0), 1);
+    }
+    function glowAngle(el, x, y) {
+      var c = glowCenter(el);
+      var dx = x - c[0], dy = y - c[1];
+      if (dx === 0 && dy === 0) return 0;
+      var deg = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+      if (deg < 0) deg += 360;
+      return deg;
+    }
+    glowCard.addEventListener('pointermove', function (e) {
+      var rect = glowCard.getBoundingClientRect();
+      var x = e.clientX - rect.left, y = e.clientY - rect.top;
+      glowCard.style.setProperty('--edge-proximity', (glowEdge(glowCard, x, y) * 100).toFixed(3));
+      glowCard.style.setProperty('--cursor-angle', glowAngle(glowCard, x, y).toFixed(3) + 'deg');
+    });
+  }
+
+  /* BorderGlow（个人优势卡片） */
+  var glowCards = document.querySelectorAll('.str-card');
+  if (glowCards.length) {
+    function gCenter(el) { var r = el.getBoundingClientRect(); return [r.width / 2, r.height / 2]; }
+    function gEdge(el, x, y) {
+      var c = gCenter(el), dx = x - c[0], dy = y - c[1];
+      var kx = Infinity, ky = Infinity;
+      if (dx !== 0) kx = c[0] / Math.abs(dx);
+      if (dy !== 0) ky = c[1] / Math.abs(dy);
+      return Math.min(Math.max(1 / Math.min(kx, ky), 0), 1);
+    }
+    function gAngle(el, x, y) {
+      var c = gCenter(el), dx = x - c[0], dy = y - c[1];
+      if (dx === 0 && dy === 0) return 0;
+      var deg = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+      if (deg < 0) deg += 360;
+      return deg;
+    }
+    glowCards.forEach(function (card) {
+      card.addEventListener('pointermove', function (e) {
+        var rect = card.getBoundingClientRect();
+        var x = e.clientX - rect.left, y = e.clientY - rect.top;
+        card.style.setProperty('--edge-proximity', (gEdge(card, x, y) * 100).toFixed(3));
+        card.style.setProperty('--cursor-angle', gAngle(card, x, y).toFixed(3) + 'deg');
+      });
+    });
+  }
+
+  /* 移动端菜单 */
+  var navBurger = document.getElementById('navBurger');
+  var mobileMenu = document.getElementById('mobileMenu');
+  if (navBurger && mobileMenu) {
+    navBurger.addEventListener('click', function () {
+      var open = document.body.classList.toggle('menu-open');
+      navBurger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      mobileMenu.setAttribute('aria-hidden', open ? 'false' : 'true');
+    });
+    mobileMenu.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () {
+        document.body.classList.remove('menu-open');
+        navBurger.setAttribute('aria-expanded', 'false');
+        mobileMenu.setAttribute('aria-hidden', 'true');
+      });
+    });
+  }
+  /* 深浅主题切换 */
+  var themeToggle = document.getElementById('themeToggle');
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    document.documentElement.classList.add('theme-anim');
+    setTimeout(function () { document.documentElement.classList.remove('theme-anim'); }, 520);
+    try { localStorage.setItem('ljq-theme', t); } catch (e) {}
+  }
+  var savedTheme = null;
+  try { savedTheme = localStorage.getItem('ljq-theme'); } catch (e) {}
+  if (savedTheme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', function () {
+      var cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      applyTheme(cur);
+    });
+  }
+  /* 背景音乐（进入自动播放） */
+  var bgMusic = document.getElementById('bgMusic');
+  var musicToggle = document.getElementById('musicToggle');
+  var musicDenied = false;
+  if (bgMusic && musicToggle) {
+    bgMusic.volume = 0.35;
+    function startBg() {
+      if (musicDenied || !bgMusic.paused) return;
+      bgMusic.play().then(function () { musicToggle.classList.add('playing'); }).catch(function () {});
+    }
+    function stopBg() {
+      bgMusic.pause();
+      musicToggle.classList.remove('playing');
+    }
+    musicToggle.addEventListener('click', function () {
+      if (bgMusic.paused) {
+        musicDenied = false;
+        startBg();
+        var hs = document.getElementById('hobbySong');
+        var hp = document.getElementById('hobbyPlay');
+        if (hs && !hs.paused) { hs.pause(); if (hp) hp.classList.remove('playing'); }
+      } else {
+        musicDenied = true;
+        stopBg();
+      }
+    });
+    bgMusic.addEventListener('pause', function () { musicToggle.classList.remove('playing'); });
+    /* 进入页面：加载时尝试；点击/触摸/按键时重试直到成功（移动端需真实触摸解锁） */
+    startBg();
+    var tryStartBg = function () { startBg(); };
+    window.addEventListener('pointerdown', tryStartBg);
+    window.addEventListener('touchstart', tryStartBg, { passive: true });
+    window.addEventListener('keydown', tryStartBg);
+  }
+  /* 爱好歌曲播放器 */
+  var hobbySong = document.getElementById('hobbySong');
+  var hobbyPlay = document.getElementById('hobbyPlay');
+  var hobbyBar = document.getElementById('hobbyBar');
+  var hobbyTime = document.getElementById('hobbyTime');
+  var hobbyProgress = document.getElementById('hobbyProgress');
+  if (hobbySong && hobbyPlay) {
+    hobbySong.volume = 0.9;
+    hobbyPlay.addEventListener('click', function () {
+      if (hobbySong.paused) {
+        hobbySong.play();
+        hobbyPlay.classList.add('playing');
+        if (bgMusic && !bgMusic.paused) { bgMusic.pause(); if (musicToggle) musicToggle.classList.remove('playing'); }
+      } else {
+        hobbySong.pause();
+        hobbyPlay.classList.remove('playing');
+      }
+    });
+    hobbySong.addEventListener('timeupdate', function () {
+      if (hobbySong.duration) {
+        hobbyBar.style.width = (hobbySong.currentTime / hobbySong.duration * 100) + '%';
+        var cm = Math.floor(hobbySong.currentTime / 60);
+        var cs = Math.floor(hobbySong.currentTime % 60);
+        var dm = Math.floor(hobbySong.duration / 60);
+        var ds = Math.floor(hobbySong.duration % 60);
+        hobbyTime.textContent = cm + ':' + (cs < 10 ? '0' + cs : cs) + ' / ' + dm + ':' + (ds < 10 ? '0' + ds : ds);
+      }
+    });
+    hobbySong.addEventListener('ended', function () { hobbyPlay.classList.remove('playing'); hobbyBar.style.width = '0%'; hobbyTime.textContent = '0:00 / 4:25'; });
+    if (hobbyProgress) {
+      hobbyProgress.addEventListener('click', function (e) {
+        var r = hobbyProgress.getBoundingClientRect();
+        var pct = (e.clientX - r.left) / r.width;
+        if (hobbySong.duration) hobbySong.currentTime = pct * hobbySong.duration;
+      });
+    }
+  }
+  /* ===== GSAP Premium Motion ===== */
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduceMotion && window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ ignoreMobileResize: true });
+
+    /* Opening animation: curtain + hero reveal */
+    var heroTl = gsap.timeline({ defaults: { ease: 'power4.out' }, paused: true });
+    heroTl
+      .to('#curtain', { yPercent: -100, duration: 1.05, ease: 'power4.inOut' }, '+=0.15')
+      .set('#curtain', { display: 'none' })
+      .from('.hero-visual', { scale: 0.62, opacity: 0, duration: 1.3, ease: 'power3.out' }, '-=0.55')
+      .from('.hero-kicker', { y: 26, opacity: 0, duration: 0.8 }, '-=0.75')
+      .from('.hero-title', { clipPath: 'inset(0 0 100% 0)', y: 80, scale: 1.1, letterSpacing: '0.22em', opacity: 0.001, duration: 1.15 }, '-=0.7')
+      .from('.hero-name-sub', { y: 22, opacity: 0, duration: 0.7 }, '-=0.75')
+      .from('.hero-line', { scaleX: 0, transformOrigin: 'left center', duration: 0.9 }, '-=0.5')
+      .from('.hero-sub', { y: 26, opacity: 0, duration: 0.85 }, '-=0.55')
+      .from('.hero-cta', { y: 24, opacity: 0, duration: 0.8 }, '-=0.6')
+      .from('.hero-meta', { y: 18, opacity: 0, duration: 0.8 }, '-=0.55')
+      .from('.hero-scroll', { opacity: 0, duration: 0.6 }, '-=0.4');
+
+    /* 幕布品牌与提示即刻浮现 */
+    gsap.from('.curtain-brand', { scale: 0.82, opacity: 0, duration: 0.7, ease: 'power3.out' });
+    gsap.from('.curtain-hint, .curtain-hint-en', { opacity: 0, y: 12, duration: 0.7, delay: 0.5, ease: 'power3.out' });
+
+    /* 点击进入：开启音乐 + 播放开场动画 */
+    var entered = false;
+    function enterSite() {
+      if (entered) return;
+      entered = true;
+      siteEntered = true;
+      var bg = document.getElementById('bgMusic');
+      var tg = document.getElementById('musicToggle');
+      if (bg && bg.paused) {
+        bg.volume = 0.35;
+        bg.play().then(function () { if (tg) tg.classList.add('playing'); }).catch(function () {});
+      }
+      heroTl.play();
+      document.removeEventListener('pointerdown', enterSite);
+      document.removeEventListener('keydown', enterSite);
+    }
+    document.addEventListener('pointerdown', enterSite);
+    document.addEventListener('keydown', enterSite);
+    document.addEventListener('touchstart', enterSite, { passive: true });
+
+    /* Section titles: mask reveal + displace + settle */
+    gsap.utils.toArray('.sec').forEach(function (sec) {
+      var head = sec.querySelector('.sec-head');
+      if (!head) return;
+      var st = { trigger: head, start: 'top 78%', once: true };
+      var idx = head.querySelector('.sec-index');
+      var title = head.querySelector('.sec-title');
+      var rule = head.querySelector('.sec-rule');
+      if (idx) {
+        gsap.set(idx, { y: 24, opacity: 0 });
+        gsap.to(idx, { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', scrollTrigger: st });
+      }
+      if (title) {
+        gsap.set(title, { clipPath: 'inset(0 0 100% 0)', y: 90, scale: 1.05, opacity: 0.001 });
+        gsap.to(title, { clipPath: 'inset(0 0 0% 0)', y: 0, scale: 1, opacity: 1, duration: 1.15, ease: 'power4.out', scrollTrigger: st });
+      }
+      if (rule) {
+        gsap.set(rule, { scaleX: 0, transformOrigin: 'left center' });
+        gsap.to(rule, { scaleX: 1, duration: 1.0, ease: 'power3.inOut', scrollTrigger: st });
+      }
+    });
+
+    /* Cards stagger in */
+    function cardsIn(sel) {
+      var cards = document.querySelectorAll(sel);
+      if (!cards.length) return;
+      gsap.set(cards, { y: 74, opacity: 0 });
+      gsap.to(cards, {
+        y: 0, opacity: 1, duration: 1.15, ease: 'power4.out', stagger: 0.12,
+        scrollTrigger: { trigger: cards[0].parentElement, start: 'top 74%', once: true }
+      });
+    }
+    cardsIn('#about .about-grid > .about-card');
+    cardsIn('#about .about-body > .about-text, #about .about-body > .contact-list, #about .about-body > .stats');
+    cardsIn('#honors .honors-grid > .honor-card');
+    cardsIn('#projects .proj-grid > .proj-card');
+    cardsIn('#strengths .str-grid > .str-card');
+    cardsIn('#hobbies .hobby-grid > .hobby-card');
+    cardsIn('#contact .contact-kicker, #contact .contact-title, #contact .contact-sub, #contact .contact-ways, #contact .contact-foot');
+
+    /* Image reveal + light parallax (honor certificates) */
+    gsap.utils.toArray('.honor-img').forEach(function (wrap) {
+      gsap.set(wrap, { clipPath: 'inset(12% 8% 12% 8%)', scale: 1.1, opacity: 0.5 });
+      gsap.to(wrap, { clipPath: 'inset(0% 0% 0% 0%)', scale: 1, opacity: 1, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: wrap, start: 'top 86%', once: true } });
+      gsap.to(wrap, { yPercent: -4, ease: 'none', scrollTrigger: { trigger: wrap, start: 'top bottom', end: 'bottom top', scrub: 1 } });
+    });
+
+    /* Hobby photo reveal */
+    gsap.utils.toArray('.hobby-cover').forEach(function (cover) {
+      gsap.set(cover, { clipPath: 'inset(10% 6% 10% 6%)', scale: 1.08 });
+      gsap.to(cover, { clipPath: 'inset(0% 0% 0% 0%)', scale: 1, duration: 1.1, ease: 'power3.out', scrollTrigger: { trigger: cover, start: 'top 86%', once: true } });
+    });
+
+    /* Hero parallax */
+    gsap.set('.hero-media', { scale: 1.1 });
+    gsap.to('.hero-media', { yPercent: 8, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1 } });
+    gsap.to('.hero-visual', { yPercent: -8, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1 } });
+
+    window.addEventListener('load', function () { ScrollTrigger.refresh(); });
+  } else {
+    var curtain = document.getElementById('curtain');
+    if (curtain) curtain.style.display = 'none';
+  }
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        e.target.querySelectorAll('[data-count]').forEach(countUp);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+
+  /* 数字滚动 */
+  function countUp(el) {
+    if (el.dataset.done) return;
+    el.dataset.done = '1';
+    var target = parseFloat(el.dataset.count);
+    var suffix = el.dataset.suffix || '';
+    var dur = 1400;
+    var start = null;
+    function step(now) {
+      if (!start) start = now;
+      var p = Math.min((now - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * eased) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* 分子场背景动画（视频缺失时的默认背景） */
+  var canvas = document.getElementById('moleculeCanvas');
+  if (canvas && canvas.getContext) {
+    var ctx = canvas.getContext('2d');
+    var W, H, dots = [];
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function resize() {
+      W = canvas.width = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+      init();
+    }
+    function init() {
+      var n = Math.min(90, Math.floor(W * H / 24000));
+      dots = [];
+      for (var i = 0; i < n; i++) {
+        dots.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.22,
+          vy: (Math.random() - 0.5) * 0.22,
+          r: Math.random() * 1.7 + 0.6
+        });
+      }
+    }
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      var link = 110;
+      for (var i = 0; i < dots.length; i++) {
+        var p = dots[i];
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < -20) p.x = W + 20; else if (p.x > W + 20) p.x = -20;
+        if (p.y < -20) p.y = H + 20; else if (p.y > H + 20) p.y = -20;
+        for (var j = i + 1; j < dots.length; j++) {
+          var q = dots[j];
+          var dx = p.x - q.x, dy = p.y - q.y;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < link) {
+            ctx.strokeStyle = 'rgba(255,150,120,' + ((1 - d / link) * 0.16).toFixed(3) + ')';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+          }
+        }
+      }
+      for (var k = 0; k < dots.length; k++) {
+        var s = dots[k];
+        ctx.fillStyle = 'rgba(255,175,150,0.5)';
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    var paused = false;
+    function frame() {
+      if (siteEntered && !paused && !reduce) draw();
+      requestAnimationFrame(frame);
+    }
+    resize();
+    if (reduce) draw(); else requestAnimationFrame(frame);
+    window.addEventListener('resize', resize);
+
+    /* 离屏时暂停粒子动画 */
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          paused = !en.isIntersecting;
+          if (!paused && !reduce) requestAnimationFrame(draw);
+        });
+      }, { threshold: 0 }).observe(canvas);
+    }
+
+
+  }
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

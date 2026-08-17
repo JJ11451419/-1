@@ -1,0 +1,417 @@
+/* ===== 基础设置 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', 'Microsoft YaHei', monospace;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0f0f23 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    overflow: hidden;
+}
+
+/* ===== 游戏容器 ===== */
+.game-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+}
+
+/* ===== 信息面板 ===== */
+.info-panel {
+    display: flex;
+    gap: 24px;
+    background: rgba(20, 20, 40, 0.9);
+    border: 2px solid #4a9eff;
+    border-radius: 8px;
+    padding: 12px 28px;
+    box-shadow: 0 0 20px rgba(74, 158, 255, 0.3),
+                inset 0 0 10px rgba(74, 158, 255, 0.1);
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.info-item .label {
+    font-size: 12px;
+    color: #7ab8ff;
+    letter-spacing: 2px;
+}
+
+.info-item span:last-child {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
+/* ===== 游戏画布 ===== */
+#gameCanvas {
+    border: 3px solid #4a9eff;
+    border-radius: 4px;
+    background: #000;
+    box-shadow: 0 0 30px rgba(74, 158, 255, 0.4),
+                0 0 60px rgba(74, 158, 255, 0.2);
+    image-rendering: pixelated;
+}
+
+/* ===== 遮罩层（开始/暂停/结束界面） ===== */
+.overlay {
+    position: absolute;
+    top: 72px;
+    left: 20px;
+    width: 624px;
+    height: 624px;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    z-index: 10;
+    backdrop-filter: blur(4px);
+}
+
+.overlay.hidden {
+    display: none;
+}
+
+.overlay h1 {
+    font-size: 56px;
+    color: #ffd700;
+    letter-spacing: 12px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8),
+                 0 0 20px rgba(255, 100, 0, 0.6);
+    margin-bottom: 8px;
+}
+
+.overlay .subtitle {
+    font-size: 20px;
+    color: #ff6b35;
+    letter-spacing: 8px;
+    margin-bottom: 36px;
+}
+
+.overlay h2 {
+    font-size: 40px;
+    color: #ff6b35;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px rgba(255, 107, 53, 0.6);
+}
+
+.overlay p {
+    font-size: 16px;
+    color: #b8d4ff;
+    margin: 6px 0;
+}
+
+.controls-info {
+    background: rgba(74, 158, 255, 0.1);
+    border: 1px solid #4a9eff;
+    border-radius: 8px;
+    padding: 20px 40px;
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.controls-info p:first-child {
+    font-size: 18px;
+    color: #ffd700;
+    margin-bottom: 12px;
+    font-weight: bold;
+}
+
+/* ===== 按钮 ===== */
+.game-btn {
+    font-family: inherit;
+    font-size: 22px;
+    font-weight: bold;
+    color: #000;
+    background: linear-gradient(180deg, #ffd700 0%, #ff9500 100%);
+    border: 2px solid #fff;
+    border-radius: 6px;
+    padding: 14px 48px;
+    cursor: pointer;
+    letter-spacing: 6px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 15px rgba(255, 150, 0, 0.5);
+}
+
+.game-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 150, 0, 0.8);
+}
+
+.game-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(255, 150, 0, 0.5);
+}
+
+#finalScore {
+    color: #ffd700;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* ============================================================
+ *  移动端适配（触屏控件 + 响应式布局 + 竖屏提示）
+ * ============================================================ */
+
+/* 默认在桌面端隐藏触摸控件 */
+.touch-dpad,
+.touch-actions,
+.portrait-mask {
+    display: none;
+}
+
+/* --- 竖屏提示 --- */
+.portrait-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.96);
+    z-index: 9999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    gap: 14px;
+}
+.portrait-mask .rotate-icon {
+    font-size: 90px;
+    animation: rotatePhone 2.2s ease-in-out infinite;
+}
+.portrait-mask p {
+    font-size: 22px;
+    color: #ffd700;
+    letter-spacing: 2px;
+}
+.portrait-mask p.small {
+    font-size: 14px;
+    color: #b8d4ff;
+}
+@keyframes rotatePhone {
+    0%, 20%   { transform: rotate(0deg); }
+    60%, 100% { transform: rotate(-90deg); }
+}
+
+/* --- 触摸方向键 (左下) --- */
+.touch-dpad {
+    position: fixed;
+    left: calc(env(safe-area-inset-left, 0px) + 16px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+    width: 160px;
+    height: 160px;
+    z-index: 9000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.dpad-middle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.dpad-center {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(74, 158, 255, 0.25) 0%, rgba(74, 158, 255, 0.05) 70%);
+}
+.dpad-btn {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, rgba(74, 158, 255, 0.45), rgba(74, 158, 255, 0.15));
+    border: 2px solid rgba(120, 184, 255, 0.6);
+    color: #fff;
+    font-size: 22px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: none;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 0 8px rgba(120, 184, 255, 0.3);
+    transition: transform 0.06s, background 0.1s;
+    font-family: inherit;
+    padding: 0;
+    margin: 0;
+}
+.dpad-btn:active,
+.dpad-btn.active {
+    transform: scale(0.9);
+    background: linear-gradient(145deg, rgba(255, 215, 0, 0.55), rgba(255, 150, 0, 0.35));
+    border-color: rgba(255, 215, 0, 0.8);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 16px rgba(255, 215, 0, 0.4);
+}
+
+/* --- 触摸操作按钮 (右下: 射击 + 暂停) --- */
+.touch-actions {
+    position: fixed;
+    right: calc(env(safe-area-inset-right, 0px) + 16px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+    z-index: 9000;
+    display: none;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 14px;
+}
+.action-btn {
+    border: none;
+    color: #fff;
+    font-family: inherit;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: none;
+    transition: transform 0.06s, box-shadow 0.1s;
+    padding: 0;
+    margin: 0;
+}
+.action-fire {
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    font-size: 32px;
+    background: radial-gradient(circle at 35% 30%, #ff8050, #c02020 70%);
+    border: 3px solid rgba(255, 220, 180, 0.7);
+    box-shadow: 0 6px 20px rgba(190, 30, 0, 0.6), inset 0 -6px 12px rgba(0, 0, 0, 0.3);
+}
+.action-fire:active,
+.action-fire.active {
+    transform: scale(0.92);
+    box-shadow: 0 2px 8px rgba(190, 30, 0, 0.7), 0 0 24px rgba(255, 150, 0, 0.7);
+    background: radial-gradient(circle at 35% 30%, #ffa070, #e03010 70%);
+}
+.action-pause {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    font-size: 22px;
+    background: linear-gradient(145deg, rgba(90, 90, 120, 0.9), rgba(40, 40, 60, 0.9));
+    border: 2px solid rgba(180, 180, 220, 0.5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    margin-right: 18px;
+}
+.action-pause:active {
+    transform: scale(0.9);
+}
+
+/* ============================================================
+ *  响应式布局：当屏幕宽度 <= 980px 时
+ *  - 启用触摸控件
+ *  - Canvas 按窗口尺寸等比缩放
+ *  - 竖屏提示根据方向显示
+ * ============================================================ */
+@media screen and (max-width: 980px), (pointer: coarse) {
+    body {
+        overflow: hidden;
+        /* 横屏下容器高度可能超过 viewport,改成 flex-start 避免上下裁切 */
+        align-items: flex-start;
+    }
+    .game-container {
+        padding: 6px;
+        gap: 8px;
+        /* 水平方向 auto 居中,垂直方向由 body 的 flex-start 控制 */
+        margin: 0 auto;
+    }
+    .info-panel {
+        gap: 12px;
+        padding: 8px 18px;
+    }
+    .info-item .label {
+        font-size: 10px;
+    }
+    .info-item span:last-child {
+        font-size: 18px;
+    }
+
+    /* 触摸控件显示 */
+    .touch-dpad    { display: flex; }
+    .touch-actions { display: flex; }
+
+    /* overlay 改成 fixed 定位,直接基于 viewport 居中
+       不再依赖 .game-container(横屏下容器高度可能超出 viewport,会导致 absolute 定位的 overlay 跑出屏幕) */
+    .overlay {
+        position: fixed !important;
+        inset: auto;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%);
+        width: min(624px, 92vw) !important;
+        height: min(624px, 80vh) !important;
+    }
+    .overlay h1 {
+        font-size: 36px;
+        letter-spacing: 6px;
+    }
+    .overlay .subtitle {
+        font-size: 14px;
+        letter-spacing: 4px;
+        margin-bottom: 20px;
+    }
+    .overlay h2 {
+        font-size: 28px;
+    }
+    .overlay p {
+        font-size: 14px;
+    }
+    .controls-info {
+        padding: 14px 20px;
+        margin-bottom: 22px;
+    }
+    .controls-info p:first-child {
+        font-size: 15px;
+    }
+    .game-btn {
+        font-size: 18px;
+        padding: 12px 32px;
+        letter-spacing: 4px;
+    }
+
+    /* 竖屏时显示旋转提示 */
+    @media (orientation: portrait) and (max-height: 980px) {
+        .portrait-mask { display: flex; }
+    }
+    @media (orientation: landscape) {
+        .portrait-mask { display: none !important; }
+    }
+}
+
+/* 横屏下小屏继续缩小按钮 */
+@media screen and (max-width: 900px) and (orientation: landscape) {
+    .touch-dpad  { width: 132px; height: 132px; bottom: 12px; left: 12px; }
+    .dpad-btn    { width: 44px; height: 44px; font-size: 18px; }
+    .dpad-center { width: 44px; height: 44px; }
+    .action-fire { width: 76px; height: 76px; font-size: 26px; bottom: 12px; right: 12px; }
+    .action-pause { width: 46px; height: 46px; font-size: 18px; }
+    .touch-actions { bottom: 12px; right: 12px; gap: 10px; }
+}
+
+/* 极小屏 */
+@media screen and (max-width: 640px) {
+    .touch-dpad  { width: 116px; height: 116px; }
+    .dpad-btn    { width: 38px; height: 38px; font-size: 16px; }
+    .dpad-center { width: 38px; height: 38px; }
+    .action-fire { width: 66px; height: 66px; font-size: 22px; }
+    .action-pause { width: 40px; height: 40px; font-size: 16px; }
+}

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>坦克大战 - 触摸事件测试</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { display: block; padding: 10px; overflow: auto; }
+        .game-container { margin: 0; }
+        /* 强制显示触摸控件(模拟移动端环境) */
+        .touch-dpad, .touch-actions { display: flex !important; }
+        /* 竖屏提示遮罩不要挡住测试 */
+        .portrait-mask { display: none !important; }
+        /* 缩小 canvas 给测试面板留空间 */
+        #gameCanvas { width: 400px; height: 400px; }
+
+        /* 测试面板 */
+        .test-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 340px;
+            max-height: 95vh;
+            overflow-y: auto;
+            background: #1a1a2e;
+            border: 2px solid #4a9eff;
+            border-radius: 8px;
+            padding: 14px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            z-index: 100000;
+            box-shadow: 0 0 20px rgba(74, 158, 255, 0.5);
+        }
+        .test-panel h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 15px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+        .test-btn {
+            display: block;
+            width: 100%;
+            margin: 4px 0;
+            padding: 7px 10px;
+            background: linear-gradient(180deg, #4a9eff, #2563cc);
+            color: #fff;
+            border: 1px solid #7ab8ff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            text-align: left;
+            transition: background 0.15s;
+        }
+        .test-btn:hover { background: linear-gradient(180deg, #5ab0ff, #3073dd); }
+        .test-btn.run-all {
+            background: linear-gradient(180deg, #ffd700, #ff9500);
+            color: #000;
+            font-weight: bold;
+            border-color: #fff;
+        }
+        .test-log {
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            border-radius: 4px;
+            max-height: 360px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.6;
+            font-size: 11px;
+        }
+        .log-pass { color: #4ade80; }
+        .log-fail { color: #ff6b6b; }
+        .log-info { color: #7ab8ff; }
+        .log-warn { color: #ffd700; }
+        .log-section { color: #fff; font-weight: bold; }
+        .status-bar {
+            margin-top: 8px;
+            padding: 6px 8px;
+            background: rgba(74, 158, 255, 0.15);
+            border: 1px solid #4a9eff;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+        .status-bar span { color: #ffd700; }
+    </style>
+    <script>
+        /* ===== 在 game.js 加载前伪造触摸环境,让 isTouchDevice 判定为 true =====
+         * game.js 中: const isTouchDevice = ('ontouchstart' in window) ||
+         *             (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) ||
+         *             window.matchMedia('(pointer: coarse)').matches;
+         * 设置 maxTouchPoints=5 即可让中间条件为 true
+         */
+        try {
+            Object.defineProperty(navigator, 'maxTouchPoints', {
+                value: 5, configurable: true
+            });
+        } catch (e) {}
+    </script>
+</head>
+<body>
+    <div class="game-container">
+        <div class="info-panel">
+            <div class="info-item"><span class="label">关卡</span><span id="level">1</span></div>
+            <div class="info-item"><span class="label">分数</span><span id="score">0</span></div>
+            <div class="info-item"><span class="label">生命</span><span id="lives">3</span></div>
+            <div class="info-item"><span class="label">敌人</span><span id="enemies">0</span></div>
+        </div>
+        <canvas id="gameCanvas" width="624" height="624"></canvas>
+        <div id="startScreen" class="overlay">
+            <h1>坦 克 大 战</h1>
+            <p class="subtitle">BATTLE CITY</p>
+            <button id="startBtn" class="game-btn">开 始 游 戏</button>
+        </div>
+        <div id="pauseScreen" class="overlay hidden"><h2>⏸ 暂停</h2></div>
+        <div id="gameOverScreen" class="overlay hidden"><h2>结束</h2><button id="restartBtn" class="game-btn">重 新 开 始</button></div>
+    </div>
+
+    <!-- 触摸控件(测试页面强制显示) -->
+    <div id="touchDpad" class="touch-dpad">
+        <button class="dpad-btn dpad-up" data-key="ArrowUp" aria-label="向上">▲</button>
+        <div class="dpad-middle">
+            <button class="dpad-btn dpad-left" data-key="ArrowLeft" aria-label="向左">◀</button>
+            <div class="dpad-center"></div>
+            <button class="dpad-btn dpad-right" data-key="ArrowRight" aria-label="向右">▶</button>
+        </div>
+        <button class="dpad-btn dpad-down" data-key="ArrowDown" aria-label="向下">▼</button>
+    </div>
+    <div id="touchActions" class="touch-actions">
+        <button id="pauseBtn" class="action-btn action-pause" aria-label="暂停">⏸</button>
+        <button id="fireBtn" class="action-btn action-fire" data-key="Space" aria-label="射击">🔥</button>
+    </div>
+
+    <!-- 测试面板 -->
+    <div class="test-panel" id="testPanel">
+        <h3>🧪 触摸事件测试面板</h3>
+        <div class="status-bar" id="statusBar">
+            TouchEvent: <span id="touchEventSupport">检测中</span> |
+            gameState: <span id="gsStatus">-</span>
+        </div>
+        <button class="test-btn run-all" id="runAll">▶ 运行全部测试</button>
+        <button class="test-btn" id="test1">测试1: 开始按钮 click 不被阻止(关键)</button>
+        <button class="test-btn" id="test2">测试2: 方向键触摸按下/抬起</button>
+        <button class="test-btn" id="test3">测试3: 射击键触摸按下/抬起</button>
+        <button class="test-btn" id="test4">测试4: 暂停键触摸切换</button>
+        <button class="test-btn" id="test5">测试5: 多点触控(方向+射击)</button>
+        <button class="test-btn" id="test6">测试6: 手指滑出按钮自动切换</button>
+        <button class="test-btn" id="resetState">↻ 重置测试环境</button>
+        <div class="test-log" id="testLog"></div>
+    </div>
+
+    <script src="game.js"></script>
+    <script>
+    /* ============================================================
+     *  触摸事件测试脚本
+     *  - 用 TouchEvent 构造函数模拟手机触摸
+     *  - 验证修复后的 handleTouchStart/handleTouchMove/handleTouchEnd 逻辑
+     *  - 关键验证: startBtn 的 touchstart 不再被 preventDefault
+     * ============================================================ */
+    (function () {
+        'use strict';
+
+        const logEl = document.getElementById('testLog');
+        const testPanel = document.getElementById('testPanel');
+
+        // 检测 TouchEvent / Touch 构造函数支持
+        const touchEventSupported = (typeof TouchEvent !== 'undefined') && (typeof Touch !== 'undefined');
+        const supportEl = document.getElementById('touchEventSupport');
+        supportEl.textContent = touchEventSupported ? '✓ 支持' : '✗ 不支持';
+        supportEl.style.color = touchEventSupported ? '#4ade80' : '#ff6b6b';
+
+        function log(msg, type) {
+            const span = document.createElement('span');
+            span.className = 'log-' + (type || 'info');
+            span.textContent = msg + '\n';
+            logEl.appendChild(span);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function updateStatus() {
+            const gs = (typeof gameState !== 'undefined') ? gameState : '(undefined)';
+            document.getElementById('gsStatus').textContent = gs;
+        }
+        setInterval(updateStatus, 200);
+
+        // 让测试面板在 elementFromPoint 时被忽略,避免遮挡按钮
+        function withPanelIgnored(fn) {
+            const prev = testPanel.style.pointerEvents;
+            testPanel.style.pointerEvents = 'none';
+            const r = fn();
+            testPanel.style.pointerEvents = prev;
+            return r;
+        }
+
+        // 构造 Touch 对象(以元素中心为触摸点)
+        function makeTouch(id, el, cxOverride, cyOverride) {
+            const r = el.getBoundingClientRect();
+            const cx = cxOverride != null ? cxOverride : r.left + r.width / 2;
+            const cy = cyOverride != null ? cyOverride : r.top + r.height / 2;
+            return new Touch({
+                identifier: id,
+                target: el,
+                clientX: cx,
+                clientY: cy,
+                pageX: cx,
+                pageY: cy,
+                radiusX: 2,
+                radiusY: 2,
+                rotationAngle: 0,
+                force: 1
+            });
+        }
+
+        // 派发触摸事件,返回事件是否未被 preventDefault
+        function dispatchTouch(type, el, touchId) {
+            if (!touchEventSupported) {
+                log('  ✗ 浏览器不支持 TouchEvent 构造,无法测试', 'fail');
+                return false;
+            }
+            const touch = makeTouch(touchId, el);
+            const touches = (type === 'touchend' || type === 'touchcancel') ? [] : [touch];
+            const evt = new TouchEvent(type, {
+                touches: touches,
+                targetTouches: touches,
+                changedTouches: [touch],
+                bubbles: true,
+                cancelable: true
+            });
+            return withPanelIgnored(() => el.dispatchEvent(evt));
+        }
+
+        // 派发 touchmove 到 document(手指滑到新位置)
+        function dispatchTouchMove(touchId, el) {
+            if (!touchEventSupported) return false;
+            const touch = makeTouch(touchId, el);
+            const evt = new TouchEvent('touchmove', {
+                touches: [touch],
+                targetTouches: [touch],
+                changedTouches: [touch],
+                bubbles: true,
+                cancelable: true
+            });
+            return withPanelIgnored(() => document.dispatchEvent(evt));
+        }
+
+        // 重置测试环境
+        function resetState() {
+            if (typeof gameState !== 'undefined') gameState = 'start';
+            if (typeof keys !== 'undefined') {
+                Object.keys(keys).forEach(k => keys[k] = false);
+            }
+            startScreen.classList.remove('hidden');
+            pauseScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            document.querySelectorAll('.dpad-btn, .action-btn').forEach(b => b.classList.remove('active'));
+            log('测试环境已重置 (gameState=start, keys 全部清空)', 'info');
+        }
+
+        // ===== 测试用例 =====
+
+        // 测试1: 开始按钮的 click 不被 touchstart preventDefault 阻止(关键测试)
+        function test1() {
+            log('===== 测试1: 开始按钮 click 不被阻止(关键) =====', 'section');
+            resetState();
+
+            const btn = document.getElementById('startBtn');
+            if (!btn) { log('  ✗ 找不到 startBtn', 'fail'); return false; }
+
+            // 派发 touchstart 到开始按钮
+            // 修复后: body 不再监听 touchstart,事件冒泡到 body 无人处理,不会被 preventDefault
+            // 修复前: body 上有无条件 e.preventDefault(),会阻止 click 合成
+            const notPrevented = dispatchTouch('touchstart', btn, 0);
+            if (notPrevented) {
+                log('  ✓ touchstart 未被 preventDefault (修复生效,body 不再无条件阻止)', 'pass');
+            } else {
+                log('  ✗ touchstart 被 preventDefault,click 将无法合成 (修复未生效)', 'fail');
+                return false;
+            }
+
+            dispatchTouch('touchend', btn, 0);
+
+            // 模拟浏览器合成 click(只有 touchstart 未被阻止时浏览器才会合成)
+            if (notPrevented) {
+                btn.click();
+                if (gameState === 'playing') {
+                    log('  ✓ click 触发后 gameState = "playing"', 'pass');
+                    log('  ✓ 测试通过:开始按钮可正常启动游戏', 'pass');
+                    return true;
+                } else {
+                    log('  ✗ click 后 gameState = "' + gameState + '" (应为 "playing")', 'fail');
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        // 测试2: 方向键(上)触摸按下/抬起
+        function test2() {
+            log('===== 测试2: 方向键(上)触摸按下/抬起 =====', 'section');
+            const btn = document.querySelector('.dpad-up');
+            if (!btn) { log('  ✗ 找不到 dpad-up 按钮', 'fail'); return false; }
+
+            keys['ArrowUp'] = false;
+            // 按下
+            dispatchTouch('touchstart', btn, 1);
+            if (keys['ArrowUp'] === true) {
+                log('  ✓ touchstart 后 keys["ArrowUp"] = true', 'pass');
+            } else {
+                log('  ✗ touchstart 后 keys["ArrowUp"] = ' + keys['ArrowUp'] + ' (应为 true)', 'fail');
+                return false;
+            }
+            if (btn.classList.contains('active')) {
+                log('  ✓ 按钮已添加 active 视觉态', 'pass');
+            } else {
+                log('  ⚠ 按钮未添加 active class (视觉问题,不影响功能)', 'warn');
+            }
+
+            // 抬起
+            dispatchTouch('touchend', btn, 1);
+            if (keys['ArrowUp'] === false) {
+                log('  ✓ touchend 后 keys["ArrowUp"] = false', 'pass');
+                log('  ✓ 测试通过:方向键触摸正常', 'pass');
+                return true;
+            } else {
+                log('  ✗ touchend 后 keys["ArrowUp"] = ' + keys['ArrowUp'] + ' (应为 false)', 'fail');
+                return false;
+            }
+        }
+
+        // 测试3: 射击键触摸按下/抬起
+        function test3() {
+            log('===== 测试3: 射击键触摸按下/抬起 =====', 'section');
+            const btn = document.getElementById('fireBtn');
+            if (!btn) { log('  ✗ 找不到 fireBtn', 'fail'); return false; }
+
+            keys['Space'] = false;
+            dispatchTouch('touchstart', btn, 2);
+            if (keys['Space'] === true) {
+                log('  ✓ touchstart 后 keys["Space"] = true', 'pass');
+            } else {
+                log('  ✗ touchstart 后 keys["Space"] = ' + keys['Space'] + ' (应为 true)', 'fail');
+                return false;
+            }
+
+            dispatchTouch('touchend', btn, 2);
+            if (keys['Space'] === false) {
+                log('  ✓ touchend 后 keys["Space"] = false', 'pass');
+                log('  ✓ 测试通过:射击键触摸正常', 'pass');
+                return true;
+            } else {
+                log('  ✗ touchend 后 keys["Space"] = ' + keys['Space'] + ' (应为 false)', 'fail');
+                return false;
+            }
+        }
+
+        // 测试4: 暂停键触摸切换
+        function test4() {
+            log('===== 测试4: 暂停键触摸切换 =====', 'section');
+            // 确保游戏处于 playing 状态
+            if (gameState !== 'playing') {
+                gameState = 'playing';
+                startScreen.classList.add('hidden');
+                pauseScreen.classList.add('hidden');
+                log('  (已强制设置 gameState="playing" 以测试暂停)', 'info');
+            }
+
+            const btn = document.getElementById('pauseBtn');
+            if (!btn) { log('  ✗ 找不到 pauseBtn', 'fail'); return false; }
+
+            const before = gameState;
+            dispatchTouch('touchstart', btn, 3);
+            const after = gameState;
+            if (before !== after) {
+                log('  ✓ 第一次触摸: gameState "' + before + '" → "' + after + '"', 'pass');
+            } else {
+                log('  ✗ gameState 未变化 (仍为 "' + before + '")', 'fail');
+                return false;
+            }
+
+            // 再触摸一次切换回来
+            dispatchTouch('touchstart', btn, 4);
+            const after2 = gameState;
+            if (after2 === before) {
+                log('  ✓ 第二次触摸: gameState 恢复为 "' + before + '"', 'pass');
+                log('  ✓ 测试通过:暂停键正常切换', 'pass');
+                return true;
+            } else {
+                log('  ✗ 第二次触摸后 gameState = "' + after2 + '" (应恢复为 "' + before + '")', 'fail');
+                return false;
+            }
+        }
+
+        // 测试5: 多点触控(方向键上 + 射击键同时按下)
+        function test5() {
+            log('===== 测试5: 多点触控(方向键上 + 射击键) =====', 'section');
+            const upBtn = document.querySelector('.dpad-up');
+            const fireBtnEl = document.getElementById('fireBtn');
+            if (!upBtn || !fireBtnEl) { log('  ✗ 找不到测试按钮', 'fail'); return false; }
+
+            keys['ArrowUp'] = false;
+            keys['Space'] = false;
+
+            // 用不同 identifier 同时按下(模拟两根手指)
+            dispatchTouch('touchstart', upBtn, 10);
+            dispatchTouch('touchstart', fireBtnEl, 11);
+
+            if (keys['ArrowUp'] === true && keys['Space'] === true) {
+                log('  ✓ 两个触摸点同时生效: ArrowUp=true, Space=true', 'pass');
+            } else {
+                log('  ✗ 多点触控失败: ArrowUp=' + keys['ArrowUp'] + ', Space=' + keys['Space'], 'fail');
+                return false;
+            }
+
+            // 释放射击键,方向键应保持
+            dispatchTouch('touchend', fireBtnEl, 11);
+            if (keys['ArrowUp'] === true && keys['Space'] === false) {
+                log('  ✓ 释放射击后: ArrowUp=true(保持), Space=false(已释放)', 'pass');
+            } else {
+                log('  ✗ 释放后状态错误: ArrowUp=' + keys['ArrowUp'] + ', Space=' + keys['Space'], 'fail');
+                return false;
+            }
+
+            // 释放方向键
+            dispatchTouch('touchend', upBtn, 10);
+            if (keys['ArrowUp'] === false) {
+                log('  ✓ 释放方向键后: ArrowUp=false', 'pass');
+                log('  ✓ 测试通过:多点触控正常', 'pass');
+                return true;
+            } else {
+                log('  ✗ 释放方向键后 ArrowUp=' + keys['ArrowUp'] + ' (应为 false)', 'fail');
+                return false;
+            }
+        }
+
+        // 测试6: 手指滑出按钮自动切换(触摸上键后滑到右键)
+        function test6() {
+            log('===== 测试6: 手指滑出按钮自动切换 =====', 'section');
+            const upBtn = document.querySelector('.dpad-up');
+            const rightBtn = document.querySelector('.dpad-right');
+            if (!upBtn || !rightBtn) { log('  ✗ 找不到测试按钮', 'fail'); return false; }
+
+            keys['ArrowUp'] = false;
+            keys['ArrowRight'] = false;
+
+            // 按下上键
+            dispatchTouch('touchstart', upBtn, 20);
+            if (keys['ArrowUp'] !== true) {
+                log('  ✗ 初始按下 ArrowUp 失败', 'fail');
+                return false;
+            }
+            log('  ✓ 初始按下 ArrowUp=true', 'pass');
+
+            // 手指滑到右键位置(touchmove,identifier=20,位置=右键中心)
+            dispatchTouchMove(20, rightBtn);
+
+            if (keys['ArrowUp'] === false && keys['ArrowRight'] === true) {
+                log('  ✓ 滑动后: ArrowUp=false(已释放), ArrowRight=true(已切换)', 'pass');
+                log('  ✓ 测试通过:手指滑出自动释放并切换按钮', 'pass');
+                // 清理
+                dispatchTouch('touchend', rightBtn, 20);
+                return true;
+            } else {
+                log('  ✗ 滑动后状态错误: ArrowUp=' + keys['ArrowUp'] + ', ArrowRight=' + keys['ArrowRight'], 'fail');
+                dispatchTouch('touchend', rightBtn, 20);
+                return false;
+            }
+        }
+
+        // ===== 运行所有测试 =====
+        function runAll() {
+            logEl.innerHTML = '';
+            log('开始运行全部触摸事件测试...', 'section');
+            log('浏览器 TouchEvent 构造支持: ' + (touchEventSupported ? '是' : '否'), 'info');
+            if (!touchEventSupported) {
+                log('⚠ 当前浏览器不支持 TouchEvent 构造函数', 'warn');
+                log('  请使用 Chrome 64+ / Firefox / Edge 打开本页面', 'warn');
+                return;
+            }
+            log('');
+
+            const results = [];
+            results.push(['测试1-开始按钮click', test1()]);
+            log('');
+            results.push(['测试2-方向键触摸', test2()]);
+            log('');
+            results.push(['测试3-射击键触摸', test3()]);
+            log('');
+            results.push(['测试4-暂停键切换', test4()]);
+            log('');
+            results.push(['测试5-多点触控', test5()]);
+            log('');
+            results.push(['测试6-手指滑出切换', test6()]);
+
+            log('');
+            log('===== 测试汇总 =====', 'section');
+            let passCount = 0;
+            results.forEach(([name, pass]) => {
+                log((pass ? '✓ PASS  ' : '✗ FAIL  ') + name, pass ? 'pass' : 'fail');
+                if (pass) passCount++;
+            });
+            const allPass = passCount === results.length;
+            log('');
+            log('通过 ' + passCount + ' / ' + results.length + ' 项' +
+                (allPass ? '  🎉 全部通过!' : '  ⚠ 有失败的测试'), allPass ? 'pass' : 'warn');
+        }
+
+        // 绑定按钮
+        document.getElementById('runAll').addEventListener('click', runAll);
+        document.getElementById('test1').addEventListener('click', test1);
+        document.getElementById('test2').addEventListener('click', test2);
+        document.getElementById('test3').addEventListener('click', test3);
+        document.getElementById('test4').addEventListener('click', test4);
+        document.getElementById('test5').addEventListener('click', test5);
+        document.getElementById('test6').addEventListener('click', test6);
+        document.getElementById('resetState').addEventListener('click', resetState);
+
+        log('测试面板已就绪。点击"运行全部测试"开始验证。', 'info');
+        log('提示: 若 TouchEvent 显示"不支持",请用 Chrome/Firefox/Edge 打开。', 'info');
+    })();
+    </script>
+</body>
+</html>

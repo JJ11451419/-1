@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>粒子星球 · 星际穿越</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        #input-video { display: none; }
+
+        /* ===== 启动遮罩 ===== */
+        #start-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at center, #0a0a2e 0%, #000 70%);
+            text-align: center;
+            transition: opacity 1.2s ease;
+        }
+        #start-overlay h1 {
+            font-size: 2.4rem;
+            letter-spacing: 6px;
+            margin: 0 0 10px;
+            background: linear-gradient(90deg, #ffb347, #ff5e62, #8a4fff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(255, 166, 0, 0.4);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        #start-overlay p {
+            opacity: 0.7;
+            margin: 0 0 30px;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+        }
+        #start-btn {
+            padding: 16px 50px;
+            font-size: 1.1rem;
+            letter-spacing: 4px;
+            color: #fff;
+            background: rgba(255, 166, 0, 0.1);
+            border: 1px solid #ffaa00;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+        }
+        #start-btn:hover {
+            background: rgba(255, 166, 0, 0.3);
+            box-shadow: 0 0 40px rgba(255, 166, 0, 0.6);
+            transform: scale(1.05);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* ===== UI 层 ===== */
+        #ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            pointer-events: none;
+            user-select: none;
+            max-width: 360px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            background: linear-gradient(90deg, #ffb347, #ff5e62);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 166, 0, 0.3);
+        }
+        .subtitle {
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            opacity: 0.5;
+            margin-top: 2px;
+        }
+
+        .gesture-panel {
+            margin-top: 14px;
+            font-size: 0.78rem;
+            background: rgba(5, 8, 25, 0.55);
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 166, 0, 0.25);
+            backdrop-filter: blur(8px);
+            line-height: 1.7;
+        }
+        .gesture-panel .section-title {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: #ffaa00;
+            margin: 6px 0 3px;
+            text-transform: uppercase;
+        }
+        .gesture-panel .section-title:first-child { margin-top: 0; }
+
+        #gesture-status {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #00ffcc;
+            font-size: 0.95rem;
+            text-shadow: 0 0 12px currentColor;
+            min-height: 1.2em;
+        }
+        #energy-bar-wrap {
+            margin-top: 6px;
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        #energy-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00ffcc, #ffaa00, #ff5e62);
+            transition: width 0.15s linear;
+            box-shadow: 0 0 8px #ffaa00;
+        }
+
+        /* ===== 顶部右侧控制 ===== */
+        #top-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            display: flex;
+            gap: 8px;
+        }
+        .ctrl-btn {
+            pointer-events: auto;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(5, 8, 25, 0.6);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            backdrop-filter: blur(8px);
+        }
+        .ctrl-btn:hover {
+            background: rgba(255, 166, 0, 0.25);
+            border-color: #ffaa00;
+        }
+
+        /* 摄像头预览 */
+        #webcam-preview {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            z-index: 10;
+            border: 1px solid rgba(255, 166, 0, 0.4);
+            border-radius: 10px;
+            opacity: 0.75;
+            transform: scaleX(-1);
+            box-shadow: 0 0 30px rgba(255, 166, 0, 0.2);
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            z-index: 20;
+            text-align: center;
+        }
+
+        /* 提示文字闪烁 */
+        .hint-toast {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 15;
+            font-size: 2rem;
+            letter-spacing: 4px;
+            color: #ffaa00;
+            text-shadow: 0 0 30px #ff5e62;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .hint-toast.show { opacity: 1; }
+
+        /* ===== 调试面板 ===== */
+        #debug-panel {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 11;
+            background: rgba(0, 5, 15, 0.82);
+            border: 1px solid #00ffcc;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.72rem;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: #00ffcc;
+            line-height: 1.65;
+            min-width: 240px;
+            pointer-events: none;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+        }
+        #debug-panel .dbg-title {
+            color: #ffaa00;
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 170, 0, 0.3);
+            padding-bottom: 4px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        #debug-panel .dbg-row { display: flex; justify-content: space-between; gap: 12px; }
+        #debug-panel .dbg-label { color: #888; }
+        #debug-panel .dbg-val { color: #fff; font-weight: bold; }
+        #debug-panel .dbg-val.ok { color: #44ff88; }
+        #debug-panel .dbg-val.warn { color: #ffaa00; }
+        #debug-panel .dbg-val.err { color: #ff5e62; }
+        #debug-panel .dbg-log-title { margin-top: 6px; color: #ffaa00; border-top: 1px solid rgba(255,170,0,0.2); padding-top: 4px; }
+        #debug-panel #dbg-log { max-height: 130px; overflow: hidden; }
+        #debug-panel .log-entry { font-size: 0.66rem; color: #aaa; }
+        #debug-panel .log-entry .log-time { color: #666; }
+        #debug-panel .log-entry .log-evt { color: #00ffcc; font-weight: bold; }
+        #debug-toggle-hint { color: #666; font-weight: normal; font-size: 0.6rem; margin-left: 6px; }
+    </style>
+
+    <!-- MediaPipe -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <!-- 启动遮罩：需要用户手势以解锁音频 -->
+    <div id="start-overlay">
+        <h1>INTERSTELLAR</h1>
+        <p>粒子星球 · 手势星际穿越之旅</p>
+        <button id="start-btn">启程</button>
+        <p style="margin-top:24px; font-size:0.75rem; opacity:0.4;">点击后请允许摄像头权限 · 建议佩戴耳机</p>
+    </div>
+
+    <div id="loading" style="display:none;">正在建立神经连接...</div>
+
+    <div id="ui-layer">
+        <h1>粒子星云核心</h1>
+        <div class="subtitle">COSMIC CORE</div>
+        <div class="gesture-panel">
+            <div class="section-title">单手 · SINGLE HAND</div>
+            👋 <b>旋转手掌</b> · 旋转视角<br>
+            ✊ <b>握拳</b> · 远离加速<br>
+            ✋ <b>张开</b> · 靠近减速<br>
+            👆 <b>食指</b> · 召唤流星<br>
+            ✌️ <b>剪刀手</b> · 曲速跃迁<br>
+            🤏 <b>捏合</b> · 能量聚拢
+            <div class="section-title">双手 · DUAL HAND</div>
+            👏 <b>双手合拢张开</b> · 超新星爆发<br>
+            ✊✊ <b>双拳</b> · 黑洞坍缩<br>
+            🙌 <b>双手张开远离</b> · 宇宙膨胀
+        </div>
+        <div id="gesture-status">等待手势...</div>
+        <div id="energy-bar-wrap"><div id="energy-bar"></div></div>
+    </div>
+
+    <div id="top-controls">
+        <button class="ctrl-btn" id="audio-toggle" title="静音/取消静音">🔊</button>
+        <button class="ctrl-btn" id="reset-btn" title="重置视角">⟳</button>
+    </div>
+
+    <video id="input-video"></video>
+    <canvas id="webcam-preview"></canvas>
+    <div id="canvas-container"></div>
+    <div class="hint-toast" id="hint-toast"></div>
+
+    <!-- 调试面板（按 D 键切换显示） -->
+    <div id="debug-panel">
+        <div class="dbg-title">DEBUG PANEL<span id="debug-toggle-hint">[D 隐藏]</span></div>
+        <div class="dbg-row"><span class="dbg-label">FPS</span><span class="dbg-val" id="dbg-fps">0</span></div>
+        <div class="dbg-row"><span class="dbg-label">检测手数</span><span class="dbg-val" id="dbg-hands">0</span></div>
+        <div class="dbg-row"><span class="dbg-label">视觉帧计数</span><span class="dbg-val" id="dbg-mpframes">0</span></div>
+        <div class="dbg-row"><span class="dbg-label">手1 / 手势</span><span class="dbg-val" id="dbg-hand1">-</span></div>
+        <div class="dbg-row"><span class="dbg-label">手2 / 手势</span><span class="dbg-val" id="dbg-hand2">-</span></div>
+        <div class="dbg-row"><span class="dbg-label">手1 手指[T I M R P]</span><span class="dbg-val" id="dbg-fingers1">- - - - -</span></div>
+        <div class="dbg-row"><span class="dbg-label">当前手势</span><span class="dbg-val" id="dbg-gesture">NONE</span></div>
+        <div class="dbg-row"><span class="dbg-label">能量</span><span class="dbg-val" id="dbg-energy">0%</span></div>
+        <div class="dbg-row"><span class="dbg-label">音频</span><span class="dbg-val" id="dbg-audio">未启动</span></div>
+        <div class="dbg-row"><span class="dbg-label">相机距离</span><span class="dbg-val" id="dbg-cam">0</span></div>
+        <div class="dbg-log-title">事件日志 (最近)</div>
+        <div id="dbg-log"></div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+        // ==========================================================
+        // 1. 全局配置
+        // ==========================================================
+        const CONFIG = {
+            planetColor: 0xff6600,
+            particleCount: 12000,
+            ringParticleCount: 5000,
+            minDistance: 90,
+            defaultDistance: 320,
+            rotationSpeedMultiplier: 0.05,
+            backgroundStars: 6000,
+            nebulaCount: 10,
+            shootingStarPool: 8
+        };
+
+        let scene, camera, renderer, composer, bloomPass;
+        let planetSystem, ringSystem1, ringSystem2;
+        let backgroundStars1, backgroundStars2;
+        let nebulaGroup, shootingStars = [];
+        let supernovaSystem, burstParticles;
+        let time = 0;
+        let clock = new THREE.Clock();
+
+        // 着色器 uniform 共享
+        const planetUniforms = {
+            uTime: { value: 0 },
+            uPulse: { value: 0 },
+            uEnergy: { value: 0 },
+            uCollapse: { value: 0 },    // 黑洞坍缩
+            uExpand: { value: 0 },      // 超新星爆发
+            uColorShift: { value: 0 }   // 颜色偏移
+        };
+
+        const ringUniforms1 = {
+            uTime: { value: 0 },
+            uExpand: { value: 0 }
+        };
+        const ringUniforms2 = {
+            uTime: { value: 0 },
+            uExpand: { value: 0 }
+        };
+
+        // 相机状态
+        const cameraState = {
+            radius: CONFIG.defaultDistance,
+            theta: Math.PI / 2,
+            phi: 0,
+            zoomVelocity: 0,
+            targetRadius: CONFIG.defaultDistance,
+            isFist: false,
+            isOpen: false,
+            handRotation: 0,
+            warpBoost: 0,
+            shake: 0
+        };
+
+        // 手势状态管理（防抖）
+        const gestureState = {
+            current: 'NONE',
+            last: 'NONE',
+            lastTriggerTime: 0,
+            cooldown: 600,           // ms 触发冷却
+            energy: 0                // 0~1 能量值
+        };
+
+        const statusEl = document.getElementById('gesture-status');
+        const energyBar = document.getElementById('energy-bar');
+        const hintToast = document.getElementById('hint-toast');
+
+        // ===== 调试面板 =====
+        const dbg = {
+            fps: 0, frameCount: 0, lastFpsTime: performance.now(), lastRender: 0,
+            hands: 0, hand1: '-', hand2: '-', fingers1: '- - - - -',
+            gesture: 'NONE', logs: [],
+            mpFrames: 0, mpStarted: false
+        };
+        const dbgEls = {
+            panel: document.getElementById('debug-panel'),
+            fps: document.getElementById('dbg-fps'),
+            hands: document.getElementById('dbg-hands'),
+            mpframes: document.getElementById('dbg-mpframes'),
+            hand1: document.getElementById('dbg-hand1'),
+            hand2: document.getElementById('dbg-hand2'),
+            fingers1: document.getElementById('dbg-fingers1'),
+            gesture: document.getElementById('dbg-gesture'),
+            energy: document.getElementById('dbg-energy'),
+            audio: document.getElementById('dbg-audio'),
+            cam: document.getElementById('dbg-cam'),
+            log: document.getElementById('dbg-log')
+        };
+        function dbgLog(evt) {
+            const ts = new Date().toTimeString().slice(0, 8);
+            dbg.logs.unshift({ ts, evt });
+            if (dbg.logs.length > 8) dbg.logs.pop();
+            dbgEls.log.innerHTML = dbg.logs.map(l =>
+                `<div class="log-entry"><span class="log-time">${l.ts}</span> <span class="log-evt">${l.evt}</span></div>`
+            ).join('');
+        }
+        function renderDbgStats() {
+            dbgEls.fps.textContent = dbg.fps;
+            dbgEls.fps.className = 'dbg-val ' + (dbg.fps >= 50 ? 'ok' : dbg.fps >= 30 ? 'warn' : 'err');
+            dbgEls.hands.textContent = dbg.hands;
+            dbgEls.hands.className = 'dbg-val ' + (dbg.hands > 0 ? 'ok' : 'warn');
+            dbgEls.mpframes.textContent = dbg.mpFrames;
+            dbgEls.mpframes.className = 'dbg-val ' + (dbg.mpFrames > 0 ? 'ok' : 'err');
+            dbgEls.hand1.textContent = dbg.hand1;
+            dbgEls.hand2.textContent = dbg.hand2;
+            dbgEls.fingers1.textContent = dbg.fingers1;
+            dbgEls.gesture.textContent = dbg.gesture;
+            dbgEls.gesture.className = 'dbg-val ' + (dbg.gesture !== 'NONE' ? 'ok' : 'warn');
+            dbgEls.energy.textContent = Math.round(gestureState.energy * 100) + '%';
+            dbgEls.cam.textContent = Math.round(cameraState.radius);
+            if (audio.ctx) {
+                const s = audio.muted ? '静音' : (audio.bgmPlaying ? 'BGM 播放中' : '已启动');
+                dbgEls.audio.textContent = s;
+                dbgEls.audio.className = 'dbg-val ' + (audio.muted ? 'warn' : 'ok');
+            } else {
+                dbgEls.audio.textContent = '未启动';
+                dbgEls.audio.className = 'dbg-val err';
+            }
+        }
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'd' || e.key === 'D') {
+                dbgEls.panel.style.display = dbgEls.panel.style.display === 'none' ? '' : 'none';
+            }
+            // ===== 音效测试快捷键（无需手势，直接试听）=====
+            // 需要先点击"启程"启动音频
+            if (!audio.ctx) return;
+            const sfxMap = {
+                '1': () => audio.playFist(),
+                '2': () => audio.playOpen(),
+                '3': () => { audio.playPoint(); for (let i = 0; i < 3; i++) setTimeout(spawnShootingStar, i*80); },
+                '4': () => { audio.playWarp(); cameraState.warpBoost = 1.0; planetUniforms.uColorShift.value = 1.0; },
+                '5': () => { audio.playPinch(); gestureState.energy = 1; },
+                '6': () => { audio.playSupernova(); triggerSupernova(); },
+                '7': () => { audio.playBlackhole(); planetUniforms.uCollapse.value = 1.0; },
+                '8': () => { audio.playExpand(); ringUniforms1.uExpand.value = 1.0; ringUniforms2.uExpand.value = 1.0; },
+                '9': () => triggerSupernova(),
+                '0': () => spawnShootingStar()
+            };
+            const labelMap = {
+                '1':'FIST','2':'OPEN','3':'POINT','4':'PEACE','5':'PINCH','6':'SUPERNOVA','7':'BLACKHOLE','8':'EXPAND','9':'VISUAL-NOVA','0':'SHOOTING-STAR'
+            };
+            if (sfxMap[e.key]) {
+                sfxMap[e.key]();
+                dbgLog('KEY-' + e.key + ' ' + labelMap[e.key]);
+                showHint(labelMap[e.key]);
+            }
+        });
+
+        // ==========================================================
+        // 2. 宇宙音频系统 (Web Audio API 合成)
+        // ==========================================================
+        class CosmicAudio {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+                this.bgmPlaying = false;
+                this.bgmNodes = [];
+            }
+
+            async init() {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (this.ctx.state === 'suspended') await this.ctx.resume();
+
+                // 主输出
+                this.masterGain = this.ctx.createGain();
+                this.masterGain.gain.value = 0.7;
+                this.masterGain.connect(this.ctx.destination);
+
+                // 混响（卷积合成空间感）
+                this.reverb = this.ctx.createConvolver();
+                this.reverb.buffer = this._impulse(5, 2.5);
+                this.reverbGain = this.ctx.createGain();
+                this.reverbGain.gain.value = 0.5;
+                this.reverb.connect(this.reverbGain);
+                this.reverbGain.connect(this.masterGain);
+
+                // BGM / SFX 总线
+                this.bgmGain = this.ctx.createGain();
+                this.bgmGain.gain.value = 0;
+                this.bgmGain.connect(this.masterGain);
+                this.bgmGain.connect(this.reverb);
+
+                this.sfxGain = this.ctx.createGain();
+                this.sfxGain.gain.value = 0.7;
+                this.sfxGain.connect(this.masterGain);
+                this.sfxGain.connect(this.reverb);
+            }
+
+            _impulse(duration, decay) {
+                const rate = this.ctx.sampleRate;
+                const len = rate * duration;
+                const buf = this.ctx.createBuffer(2, len, rate);
+                for (let ch = 0; ch < 2; ch++) {
+                    const d = buf.getChannelData(ch);
+                    for (let i = 0; i < len; i++) {
+                        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+                    }
+                }
+                return buf;
+            }
+
+            // 启动 BGM：星际穿越风格的管风琴 drone + 缓慢 pad
+            startBGM() {
+                if (this.bgmPlaying) return;
+                this.bgmPlaying = true;
+
+                // C 大调低音和弦：C2 C3 G3 C4 E4 G4 B4 —— 庄严空灵
+                const freqs = [65.41, 130.81, 196.00, 261.63, 329.63, 392.00, 493.88];
+                const types = ['sine', 'sine', 'triangle', 'triangle', 'sine', 'sine', 'sine'];
+
+                freqs.forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    osc.type = types[i];
+                    osc.frequency.value = freq;
+                    osc.detune.value = (Math.random() - 0.5) * 10;
+
+                    const gain = this.ctx.createGain();
+                    const baseLevel = 0.18 / (i + 1);
+
+                    // 缓慢呼吸 LFO
+                    const lfo = this.ctx.createOscillator();
+                    lfo.frequency.value = 0.04 + i * 0.015;
+                    const lfoGain = this.ctx.createGain();
+                    lfoGain.gain.value = baseLevel * 0.4;
+                    lfo.connect(lfoGain);
+                    lfoGain.connect(gain.gain);
+
+                    gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(baseLevel, this.ctx.currentTime + 6);
+
+                    // 低通滤波：温暖
+                    const filter = this.ctx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.value = 600 + i * 350;
+                    filter.Q.value = 1.2;
+
+                    // 滤波器自身缓慢扫描，制造"演化"
+                    const filterLfo = this.ctx.createOscillator();
+                    filterLfo.frequency.value = 0.03 + i * 0.01;
+                    const filterLfoGain = this.ctx.createGain();
+                    filterLfoGain.gain.value = 200;
+                    filterLfo.connect(filterLfoGain);
+                    filterLfoGain.connect(filter.frequency);
+
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.bgmGain);
+
+                    osc.start();
+                    lfo.start();
+                    filterLfo.start();
+                    this.bgmNodes.push({ osc, lfo, filterLfo, gain });
+                });
+
+                // 顶层高频闪烁（星星叮当感）
+                const shimmer = this.ctx.createOscillator();
+                shimmer.type = 'sine';
+                shimmer.frequency.value = 2093; // C7
+                const shimmerGain = this.ctx.createGain();
+                shimmerGain.gain.value = 0;
+                const shimmerLfo = this.ctx.createOscillator();
+                shimmerLfo.frequency.value = 0.2;
+                const shimmerLfoGain = this.ctx.createGain();
+                shimmerLfoGain.gain.value = 0.015;
+                shimmerLfo.connect(shimmerLfoGain);
+                shimmerLfoGain.connect(shimmerGain.gain);
+                shimmer.connect(shimmerGain);
+                shimmerGain.connect(this.bgmGain);
+                shimmer.start();
+                shimmerLfo.start();
+
+                this.bgmGain.gain.linearRampToValueAtTime(0.45, this.ctx.currentTime + 4);
+            }
+
+            setMuted(m) {
+                this.muted = m;
+                this.masterGain.gain.linearRampToValueAtTime(m ? 0 : 0.7, this.ctx.currentTime + 0.3);
+            }
+
+            // ===== 各种 SFX =====
+            playFist() {
+                const t = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(220, t);
+                osc.frequency.exponentialRampToValueAtTime(40, t + 0.6);
+                const g = this.ctx.createGain();
+                g.gain.setValueAtTime(0.5, t);
+                g.gain.exponentialRampToValueAtTime(0.001, t + 0.9);
+                osc.connect(g); g.connect(this.sfxGain);
+                osc.start(t); osc.stop(t + 1.0);
+            }
+            playOpen() {
+                const t = this.ctx.currentTime;
+                const buf = this.ctx.createBuffer(1, this.ctx.sampleRate, this.ctx.sampleRate);
+                const d = buf.getChannelData(0);
+                for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+                const n = this.ctx.createBufferSource(); n.buffer = buf;
+                const f = this.ctx.createBiquadFilter();
+                f.type = 'bandpass';
+                f.frequency.setValueAtTime(400, t);
+                f.frequency.exponentialRampToValueAtTime(4000, t + 0.7);
+                f.Q.value = 3;
+                const g = this.ctx.createGain();
+                g.gain.setValueAtTime(0.35, t);
+                g.gain.exponentialRampToValueAtTime(0.001, t + 0.9);
+                n.connect(f); f.connect(g); g.connect(this.sfxGain);
+                n.start(t); n.stop(t + 1.0);
+            }
+            playPoint() {
+                const t = this.ctx.currentTime;
+                [1568, 2349, 3136].forEach((f, i) => {
+                    const o = this.ctx.createOscillator();
+                    o.type = 'sine'; o.frequency.value = f;
+                    const g = this.ctx.createGain();
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(0.18 / (i + 1), t + 0.005);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+                    o.connect(g); g.connect(this.sfxGain);
+                    o.start(t); o.stop(t + 1.3);
+                });
+            }
+            playWarp() {
+                const t = this.ctx.currentTime;
+                const o = this.ctx.createOscillator();
+                o.type = 'sawtooth';
+                o.frequency.setValueAtTime(80, t);
+                o.frequency.exponentialRampToValueAtTime(3000, t + 1.4);
+                const f = this.ctx.createBiquadFilter();
+                f.type = 'lowpass';
+                f.frequency.setValueAtTime(150, t);
+                f.frequency.exponentialRampToValueAtTime(6000, t + 1.4);
+                const g = this.ctx.createGain();
+                g.gain.setValueAtTime(0, t);
+                g.gain.linearRampToValueAtTime(0.25, t + 0.15);
+                g.gain.exponentialRampToValueAtTime(0.001, t + 1.7);
+                o.connect(f); f.connect(g); g.connect(this.sfxGain);
+                o.start(t); o.stop(t + 1.8);
+            }
+            playPinch() {
+                const t = this.ctx.currentTime;
+                const o = this.ctx.createOscillator();
+                o.type = 'triangle'; o.frequency.value = 660;
+                const g = this.ctx.createGain();
+                g.gain.setValueAtTime(0, t);
+                g.gain.linearRampToValueAtTime(0.2, t + 0.02);
+                g.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+                o.connect(g); g.connect(this.sfxGain);
+                o.start(t); o.stop(t + 0.7);
+            }
+            playSupernova() {
+                const t = this.ctx.currentTime;
+                const len = this.ctx.sampleRate * 2.5;
+                const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+                const d = buf.getChannelData(0);
+                for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.5);
+                const n = this.ctx.createBufferSource(); n.buffer = buf;
+                const f = this.ctx.createBiquadFilter();
+                f.type = 'lowpass';
+                f.frequency.setValueAtTime(4000, t);
+                f.frequency.exponentialRampToValueAtTime(120, t + 2.5);
+                const g = this.ctx.createGain();
+                g.gain.setValueAtTime(0.7, t);
+                g.gain.exponentialRampToValueAtTime(0.001, t + 3);
+                n.connect(f); f.connect(g); g.connect(this.sfxGain);
+                n.start(t);
+                // 低频轰鸣
+                const sub = this.ctx.createOscillator();
+                sub.type = 'sine';
+                sub.frequency.setValueAtTime(120, t);
+                sub.frequency.exponentialRampToValueAtTime(28, t + 2);
+                const sg = this.ctx.createGain();
+                sg.gain.setValueAtTime(0.6, t);
+                sg.gain.exponentialRampToValueAtTime(0.001, t + 2.5);
+                sub.connect(sg); sg.connect(this.sfxGain);
+                sub.start(t); sub.stop(t + 2.6);
+            }
+            playBlackhole() {
+                const t = this.ctx.currentTime;
+                const o = this.ctx.createOscillator();
+                o.type = 'sine';
+                o.frequency.setValueAtTime(180, t);
+                o.frequency.exponentialRampToValueAtTime(20, t + 1.8);
+                const g = this.ctx.createGain();
+                g.gain.setValueAtTime(0.5, t);
+                g.gain.exponentialRampToValueAtTime(0.001, t + 2.2);
+                o.connect(g); g.connect(this.sfxGain);
+                o.start(t); o.stop(t + 2.3);
+            }
+            playExpand() {
+                const t = this.ctx.currentTime;
+                [261, 329, 392, 523].forEach((f, i) => {
+                    const o = this.ctx.createOscillator();
+                    o.type = 'sine'; o.frequency.value = f;
+                    const g = this.ctx.createGain();
+                    g.gain.setValueAtTime(0, t + i * 0.05);
+                    g.gain.linearRampToValueAtTime(0.12, t + i * 0.05 + 0.1);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + 2);
+                    o.connect(g); g.connect(this.sfxGain);
+                    o.start(t + i * 0.05); o.stop(t + 2.1);
+                });
+            }
+        }
+        const audio = new CosmicAudio();
+
+        // ==========================================================
+        // 3. Three.js 初始化
+        // ==========================================================
+        function initThree() {
+            const container = document.getElementById('canvas-container');
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x01010a, 0.0008);
+
+            camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 4000);
+            camera.position.set(0, 0, CONFIG.defaultDistance);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setClearColor(0x000005, 1);
+            container.appendChild(renderer.domElement);
+
+            // 后期处理
+            const renderScene = new RenderPass(scene, camera);
+            bloomPass = new UnrealBloomPass(
+                new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85
+            );
+            bloomPass.threshold = 0;
+            bloomPass.strength = 1.4;
+            bloomPass.radius = 0.6;
+
+            composer = new EffectComposer(renderer);
+            composer.addPass(renderScene);
+            composer.addPass(bloomPass);
+
+            createBackground();
+            createNebula();
+            createPlanet();
+            createRings();
+            createShootingStarPool();
+            createSupernovaSystem();
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        // 圆形粒子纹理
+        function createParticleTexture() {
+            const c = document.createElement('canvas');
+            c.width = 64; c.height = 64;
+            const ctx = c.getContext('2d');
+            const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+            g.addColorStop(0, 'rgba(255,255,255,1)');
+            g.addColorStop(0.25, 'rgba(255,255,255,0.85)');
+            g.addColorStop(0.5, 'rgba(255,255,255,0.25)');
+            g.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, 64, 64);
+            return new THREE.CanvasTexture(c);
+        }
+
+        // 星云贴图
+        function createNebulaTexture(color) {
+            const c = document.createElement('canvas');
+            c.width = 256; c.height = 256;
+            const ctx = c.getContext('2d');
+            const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+            g.addColorStop(0, color.replace('1)', '0.9)'));
+            g.addColorStop(0.4, color.replace('1)', '0.4)'));
+            g.addColorStop(1, color.replace('1)', '0)'));
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, 256, 256);
+            return new THREE.CanvasTexture(c);
+        }
+
+        // ===== 背景：多层星空 =====
+        function createBackground() {
+            const tex = createParticleTexture();
+
+            // 远景星海（小、密集、缓慢）
+            {
+                const geo = new THREE.BufferGeometry();
+                const pos = [], col = [], siz = [];
+                const tmp = new THREE.Color();
+                for (let i = 0; i < 4000; i++) {
+                    const r = 1500 + Math.random() * 800;
+                    const t = Math.random() * Math.PI * 2;
+                    const p = Math.acos(2 * Math.random() - 1);
+                    pos.push(r * Math.sin(p) * Math.cos(t), r * Math.cos(p), r * Math.sin(p) * Math.sin(t));
+                    tmp.setHSL(Math.random(), 0.3, 0.6 + Math.random() * 0.4);
+                    col.push(tmp.r, tmp.g, tmp.b);
+                    siz.push(Math.random() * 2 + 0.5);
+                }
+                geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+                geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+                geo.setAttribute('size', new THREE.Float32BufferAttribute(siz, 1));
+                const mat = new THREE.PointsMaterial({
+                    size: 2, map: tex, vertexColors: true,
+                    transparent: true, opacity: 0.9,
+                    blending: THREE.AdditiveBlending, depthWrite: false
+                });
+                backgroundStars1 = new THREE.Points(geo, mat);
+                scene.add(backgroundStars1);
+            }
+            // 近景亮星（大、彩色、闪烁）
+            {
+                const geo = new THREE.BufferGeometry();
+                const pos = [], col = [], siz = [];
+                const tmp = new THREE.Color();
+                for (let i = 0; i < 2000; i++) {
+                    const r = 600 + Math.random() * 700;
+                    const t = Math.random() * Math.PI * 2;
+                    const p = Math.acos(2 * Math.random() - 1);
+                    pos.push(r * Math.sin(p) * Math.cos(t), r * Math.cos(p), r * Math.sin(p) * Math.sin(t));
+                    tmp.setHSL(Math.random(), 0.6, 0.7);
+                    col.push(tmp.r, tmp.g, tmp.b);
+                    siz.push(Math.random() * 4 + 1.5);
+                }
+                geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+                geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+                geo.setAttribute('size', new THREE.Float32BufferAttribute(siz, 1));
+                const mat = new THREE.PointsMaterial({
+                    size: 4, map: tex, vertexColors: true,
+                    transparent: true, opacity: 1.0,
+                    blending: THREE.AdditiveBlending, depthWrite: false
+                });
+                backgroundStars2 = new THREE.Points(geo, mat);
+                scene.add(backgroundStars2);
+            }
+        }
+
+        // ===== 星云团 =====
+        function createNebula() {
+            nebulaGroup = new THREE.Group();
+            const colors = [
+                'rgba(255, 80, 120, 1)',   // 粉红
+                'rgba(80, 120, 255, 1)',   // 蓝
+                'rgba(180, 80, 255, 1)',   // 紫
+                'rgba(255, 160, 80, 1)',   // 橙
+                'rgba(80, 255, 200, 1)'    // 青
+            ];
+            for (let i = 0; i < CONFIG.nebulaCount; i++) {
+                const tex = createNebulaTexture(colors[i % colors.length]);
+                const mat = new THREE.SpriteMaterial({
+                    map: tex,
+                    transparent: true,
+                    opacity: 0.25 + Math.random() * 0.2,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                const sp = new THREE.Sprite(mat);
+                const r = 800 + Math.random() * 600;
+                const t = Math.random() * Math.PI * 2;
+                const p = Math.acos(2 * Math.random() - 1);
+                sp.position.set(r * Math.sin(p) * Math.cos(t), r * Math.cos(p) * 0.6, r * Math.sin(p) * Math.sin(t));
+                const s = 400 + Math.random() * 500;
+                sp.scale.set(s, s, 1);
+                sp.userData = { drift: new THREE.Vector3((Math.random()-0.5)*0.3, (Math.random()-0.5)*0.2, (Math.random()-0.5)*0.3) };
+                nebulaGroup.add(sp);
+            }
+            scene.add(nebulaGroup);
+        }
+
+        // ===== 星球（着色器粒子） =====
+        function createPlanet() {
+            const geo = new THREE.BufferGeometry();
+            const pos = [], sizes = [], randoms = [], colorMix = [];
+
+            for (let i = 0; i < CONFIG.particleCount; i++) {
+                const u = Math.random();
+                const v = Math.random();
+                const theta = 2 * Math.PI * u;
+                const phi = Math.acos(2 * v - 1);
+                let r = 50;
+                if (Math.random() > 0.75) r = 50 * Math.random(); // 内部填充
+                pos.push(
+                    r * Math.sin(phi) * Math.cos(theta),
+                    r * Math.sin(phi) * Math.sin(theta),
+                    r * Math.cos(phi)
+                );
+                sizes.push(Math.random() * 3 + 1.2);
+                randoms.push(Math.random());
+                colorMix.push(Math.random());
+            }
+
+            geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+            geo.setAttribute('aSize', new THREE.Float32BufferAttribute(sizes, 1));
+            geo.setAttribute('aRandom', new THREE.Float32BufferAttribute(randoms, 1));
+            geo.setAttribute('aColorMix', new THREE.Float32BufferAttribute(colorMix, 1));
+
+            const mat = new THREE.ShaderMaterial({
+                uniforms: planetUniforms,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                vertexShader: `
+                    attribute float aSize;
+                    attribute float aRandom;
+                    attribute float aColorMix;
+                    varying vec3 vColor;
+                    varying float vAlpha;
+                    uniform float uTime;
+                    uniform float uPulse;
+                    uniform float uEnergy;
+                    uniform float uCollapse;
+                    uniform float uExpand;
+                    uniform float uColorShift;
+
+                    void main() {
+                        vec3 pos = position;
+                        vec3 dir = normalize(pos);
+
+                        // 呼吸脉动
+                        float wave = sin(uTime * 1.5 + aRandom * 6.28) * 0.5 + 0.5;
+                        // 能量增益：粒子向外推
+                        float energy = uEnergy * (1.5 + wave);
+                        // 超新星：向外爆发
+                        float expand = uExpand * (8.0 + aRandom * 12.0);
+                        // 黑洞坍缩：向内
+                        float collapse = uCollapse * 0.6;
+
+                        pos += dir * (wave * (1.0 + energy) + expand - collapse);
+
+                        vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+                        gl_PointSize = aSize * (320.0 / -mv.z) * (1.0 + uPulse * 0.4 + uExpand * 1.5);
+                        gl_Position = projectionMatrix * mv;
+
+                        // 颜色：核心黄 → 表面橙 → 边缘紫，加 uColorShift 偏移
+                        float dist = length(position) / 50.0;
+                        vec3 cCore = vec3(1.0, 0.95, 0.5);
+                        vec3 cMid  = vec3(1.0, 0.45, 0.1);
+                        vec3 cEdge = vec3(0.7, 0.15, 0.6);
+                        vec3 col;
+                        if (dist < 0.7) col = mix(cCore, cMid, dist / 0.7);
+                        else            col = mix(cMid, cEdge, (dist - 0.7) / 0.3);
+                        // 颜色偏移（手势触发的颜色变换）
+                        col = mix(col, col.bgr, uColorShift * 0.6);
+                        // 爆发时变白热
+                        col = mix(col, vec3(1.0), uExpand * 0.7);
+
+                        vColor = col;
+                        vAlpha = 0.55 + wave * 0.45 + uExpand * 0.3;
+                    }
+                `,
+                fragmentShader: `
+                    varying vec3 vColor;
+                    varying float vAlpha;
+                    void main() {
+                        vec2 uv = gl_PointCoord - 0.5;
+                        float d = length(uv);
+                        if (d > 0.5) discard;
+                        float a = 1.0 - d * 2.0;
+                        a = pow(a, 2.0);
+                        gl_FragColor = vec4(vColor, a * vAlpha);
+                    }
+                `
+            });
+
+            planetSystem = new THREE.Points(geo, mat);
+            scene.add(planetSystem);
+        }
+
+        // ===== 星环（着色器粒子） =====
+        function createRings() {
+            const tex = createParticleTexture();
+
+            const buildRing = (rIn, rOut, count, tiltX, tiltZ, uniforms) => {
+                const geo = new THREE.BufferGeometry();
+                const pos = [], rand = [];
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const r = THREE.MathUtils.lerp(rIn, rOut, Math.pow(Math.random(), 0.5));
+                    const x = r * Math.cos(angle);
+                    const y = (Math.random() - 0.5) * 2.5;
+                    const z = r * Math.sin(angle);
+                    pos.push(x, y, z);
+                    rand.push(Math.random());
+                }
+                geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+                geo.setAttribute('aRandom', new THREE.Float32BufferAttribute(rand, 1));
+
+                const mat = new THREE.ShaderMaterial({
+                    uniforms: uniforms,
+                    transparent: true,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false,
+                    vertexShader: `
+                        attribute float aRandom;
+                        varying float vAlpha;
+                        varying float vRand;
+                        uniform float uTime;
+                        uniform float uExpand;
+                        void main() {
+                            vec3 pos = position;
+                            // 沿径向呼吸 + 宇宙膨胀时向外推
+                            float ang = atan(pos.z, pos.x);
+                            float r = length(vec2(pos.x, pos.z));
+                            r += sin(uTime + aRandom * 6.28 + ang * 3.0) * 0.8;
+                            r += uExpand * (10.0 + aRandom * 30.0);
+                            pos.x = r * cos(ang);
+                            pos.z = r * sin(ang);
+                            vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+                            gl_PointSize = (2.0 + aRandom * 2.0) * (300.0 / -mv.z) * (1.0 + uExpand);
+                            gl_Position = projectionMatrix * mv;
+                            vAlpha = 0.4 + aRandom * 0.5;
+                            vRand = aRandom;
+                        }
+                    `,
+                    fragmentShader: `
+                        varying float vAlpha;
+                        varying float vRand;
+                        void main() {
+                            vec2 uv = gl_PointCoord - 0.5;
+                            float d = length(uv);
+                            if (d > 0.5) discard;
+                            float a = pow(1.0 - d * 2.0, 2.0);
+                            vec3 col = mix(vec3(1.0, 0.9, 0.7), vec3(0.6, 0.8, 1.0), vRand);
+                            gl_FragColor = vec4(col, a * vAlpha);
+                        }
+                    `
+                });
+
+                const sys = new THREE.Points(geo, mat);
+                sys.rotation.x = tiltX;
+                sys.rotation.z = tiltZ;
+                return sys;
+            };
+
+            ringSystem1 = buildRing(70, 115, CONFIG.ringParticleCount, Math.PI / 3, Math.PI / 6, ringUniforms1);
+            ringSystem2 = buildRing(85, 150, CONFIG.ringParticleCount, -Math.PI / 4, -Math.PI / 8, ringUniforms2);
+            scene.add(ringSystem1);
+            scene.add(ringSystem2);
+        }
+
+        // ===== 流星池 =====
+        function createShootingStarPool() {
+            for (let i = 0; i < CONFIG.shootingStarPool; i++) {
+                const geo = new THREE.BufferGeometry();
+                const pos = new Float32Array(20 * 3); // 20点尾迹
+                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+                const mat = new THREE.LineBasicMaterial({
+                    color: 0xffffff, transparent: true, opacity: 0,
+                    blending: THREE.AdditiveBlending, depthWrite: false
+                });
+                const line = new THREE.Line(geo, mat);
+                line.userData = { active: false, life: 0, vel: new THREE.Vector3(), maxLife: 0 };
+                shootingStars.push(line);
+                scene.add(line);
+            }
+        }
+
+        function spawnShootingStar() {
+            const s = shootingStars.find(x => !x.userData.active);
+            if (!s) return;
+            // 从远处某点出发
+            const r = 800;
+            const t = Math.random() * Math.PI * 2;
+            const p = Math.acos(2 * Math.random() - 1);
+            const start = new THREE.Vector3(r * Math.sin(p) * Math.cos(t), r * Math.cos(p), r * Math.sin(p) * Math.sin(t));
+            // 朝向中心附近
+            const target = new THREE.Vector3(
+                (Math.random() - 0.5) * 200,
+                (Math.random() - 0.5) * 200,
+                (Math.random() - 0.5) * 200
+            );
+            const dir = target.sub(start).normalize();
+            s.userData.active = true;
+            s.userData.life = 0;
+            s.userData.maxLife = 1.2;
+            s.userData.vel = dir.multiplyScalar(700);
+            s.userData.pos = start.clone();
+            s.material.color.setHSL(Math.random(), 0.4, 0.8);
+            s.material.opacity = 1;
+        }
+
+        function updateShootingStars(dt) {
+            // 偶尔自动生成
+            if (Math.random() < 0.012) spawnShootingStar();
+            shootingStars.forEach(s => {
+                if (!s.userData.active) return;
+                s.userData.life += dt;
+                s.userData.pos.add(s.userData.vel.clone().multiplyScalar(dt));
+                // 更新尾迹
+                const arr = s.geometry.attributes.position.array;
+                // 把点依次后移
+                for (let i = 19; i > 0; i--) {
+                    arr[i*3]   = arr[(i-1)*3];
+                    arr[i*3+1] = arr[(i-1)*3+1];
+                    arr[i*3+2] = arr[(i-1)*3+2];
+                }
+                arr[0] = s.userData.pos.x;
+                arr[1] = s.userData.pos.y;
+                arr[2] = s.userData.pos.z;
+                s.geometry.attributes.position.needsUpdate = true;
+                s.material.opacity = Math.max(0, 1 - s.userData.life / s.userData.maxLife);
+                if (s.userData.life > s.userData.maxLife) {
+                    s.userData.active = false;
+                    s.material.opacity = 0;
+                }
+            });
+        }
+
+        // ===== 超新星爆发粒子系统 =====
+        function createSupernovaSystem() {
+            const count = 2000;
+            const geo = new THREE.BufferGeometry();
+            const pos = new Float32Array(count * 3);
+            const vel = new Float32Array(count * 3);
+            const sizes = new Float32Array(count);
+            for (let i = 0; i < count; i++) {
+                pos[i*3] = 0; pos[i*3+1] = 0; pos[i*3+2] = 0;
+                const t = Math.random() * Math.PI * 2;
+                const p = Math.acos(2 * Math.random() - 1);
+                const speed = 80 + Math.random() * 220;
+                vel[i*3]   = Math.sin(p) * Math.cos(t) * speed;
+                vel[i*3+1] = Math.cos(p) * speed;
+                vel[i*3+2] = Math.sin(p) * Math.sin(t) * speed;
+                sizes[i] = Math.random() * 3 + 1;
+            }
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
+            const tex = createParticleTexture();
+            const mat = new THREE.PointsMaterial({
+                map: tex, color: 0xffeebb,
+                size: 4, transparent: true, opacity: 0,
+                blending: THREE.AdditiveBlending, depthWrite: false
+            });
+            burstParticles = new THREE.Points(geo, mat);
+            burstParticles.userData = { vel, life: 0, active: false };
+            scene.add(burstParticles);
+        }
+
+        function triggerSupernova() {
+            const arr = burstParticles.geometry.attributes.position.array;
+            for (let i = 0; i < arr.length; i++) arr[i] = 0;
+            burstParticles.geometry.attributes.position.needsUpdate = true;
+            burstParticles.userData.active = true;
+            burstParticles.userData.life = 0;
+            burstParticles.material.opacity = 1;
+            // 星球 uniform 触发爆发
+            planetUniforms.uExpand.value = 1.0;
+            cameraState.shake = 1.0;
+        }
+
+        function updateSupernova(dt) {
+            if (!burstParticles.userData.active) return;
+            burstParticles.userData.life += dt;
+            const arr = burstParticles.geometry.attributes.position.array;
+            const vel = burstParticles.userData.vel;
+            for (let i = 0; i < arr.length / 3; i++) {
+                arr[i*3]   += vel[i*3]   * dt;
+                arr[i*3+1] += vel[i*3+1] * dt;
+                arr[i*3+2] += vel[i*3+2] * dt;
+                // 衰减
+                vel[i*3]   *= 0.98;
+                vel[i*3+1] *= 0.98;
+                vel[i*3+2] *= 0.98;
+            }
+            burstParticles.geometry.attributes.position.needsUpdate = true;
+            burstParticles.material.opacity = Math.max(0, 1 - burstParticles.userData.life / 2.5);
+            // 星球爆发效果衰减
+            planetUniforms.uExpand.value *= 0.94;
+            if (burstParticles.userData.life > 2.5) {
+                burstParticles.userData.active = false;
+                burstParticles.material.opacity = 0;
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // ==========================================================
+        // 4. 相机更新
+        // ==========================================================
+        function updateCamera(dt) {
+            if (Math.abs(cameraState.handRotation) > 0.1) {
+                cameraState.phi += cameraState.handRotation * CONFIG.rotationSpeedMultiplier;
+            }
+            if (cameraState.isFist) {
+                cameraState.zoomVelocity += 0.6;
+            } else if (cameraState.isOpen) {
+                cameraState.targetRadius = CONFIG.minDistance;
+                const diff = cameraState.radius - CONFIG.minDistance;
+                cameraState.zoomVelocity = -diff * 0.05;
+            } else {
+                cameraState.zoomVelocity *= 0.9;
+            }
+
+            // 曲速：相机短暂向前冲
+            if (cameraState.warpBoost > 0) {
+                cameraState.zoomVelocity -= cameraState.warpBoost * 8;
+                cameraState.warpBoost *= 0.92;
+            }
+
+            cameraState.radius += cameraState.zoomVelocity;
+            if (cameraState.radius < CONFIG.minDistance) {
+                cameraState.radius = CONFIG.minDistance;
+                cameraState.zoomVelocity = 0;
+            }
+            if (cameraState.radius > 2000) cameraState.radius = 2000;
+
+            // 自然自转
+            if (!cameraState.isFist && !cameraState.isOpen && Math.abs(cameraState.handRotation) < 0.1) {
+                cameraState.phi -= 0.0008;
+            }
+
+            camera.position.x = cameraState.radius * Math.sin(cameraState.theta) * Math.sin(cameraState.phi);
+            camera.position.y = cameraState.radius * Math.cos(cameraState.theta);
+            camera.position.z = cameraState.radius * Math.sin(cameraState.theta) * Math.cos(cameraState.phi);
+
+            // 抖动（超新星时）
+            if (cameraState.shake > 0) {
+                camera.position.x += (Math.random() - 0.5) * cameraState.shake * 6;
+                camera.position.y += (Math.random() - 0.5) * cameraState.shake * 6;
+                cameraState.shake *= 0.9;
+            }
+
+            camera.lookAt(0, 0, 0);
+        }
+
+        // ==========================================================
+        // 5. 动画循环
+        // ==========================================================
+        function animate() {
+            requestAnimationFrame(animate);
+            const dt = Math.min(clock.getDelta(), 0.05);
+            time += dt;
+
+            planetUniforms.uTime.value = time;
+            ringUniforms1.uTime.value = time;
+            ringUniforms2.uTime.value = time;
+
+            // 能量值衰减
+            gestureState.energy *= 0.96;
+            planetUniforms.uEnergy.value = gestureState.energy;
+            planetUniforms.uPulse.value = Math.sin(time * 1.5) * 0.5 + 0.5;
+
+            // 黑洞坍缩衰减
+            if (planetUniforms.uCollapse.value > 0) planetUniforms.uCollapse.value *= 0.95;
+            // 颜色偏移衰减
+            if (planetUniforms.uColorShift.value > 0) planetUniforms.uColorShift.value *= 0.97;
+            // 星环膨胀衰减
+            ringUniforms1.uExpand.value *= 0.93;
+            ringUniforms2.uExpand.value *= 0.93;
+
+            // 星球自转
+            if (planetSystem) planetSystem.rotation.y = time * 0.08;
+            if (ringSystem1) ringSystem1.rotation.z -= 0.002;
+            if (ringSystem2) ringSystem2.rotation.z += 0.003;
+
+            // 背景星空缓慢自转（视差）
+            if (backgroundStars1) backgroundStars1.rotation.y += 0.0002;
+            if (backgroundStars2) backgroundStars2.rotation.y += 0.0005;
+
+            // 星云漂移
+            if (nebulaGroup) {
+                nebulaGroup.children.forEach(sp => {
+                    sp.position.add(sp.userData.drift);
+                    // 软边界回弹
+                    if (sp.position.length() > 1600) sp.userData.drift.multiplyScalar(-1);
+                });
+                nebulaGroup.rotation.y += 0.0001;
+            }
+
+            updateShootingStars(dt);
+            updateSupernova(dt);
+            updateCamera(dt);
+
+            // 曲速时增强 bloom
+            bloomPass.strength = 1.4 + cameraState.warpBoost * 2 + planetUniforms.uExpand.value * 1.5;
+
+            composer.render();
+
+            // 更新能量条
+            energyBar.style.width = (gestureState.energy * 100) + '%';
+
+            // ===== 调试面板：FPS + 节流渲染 =====
+            dbg.frameCount++;
+            const nowMs = performance.now();
+            if (nowMs - dbg.lastFpsTime >= 500) {
+                dbg.fps = Math.round((dbg.frameCount * 1000) / (nowMs - dbg.lastFpsTime));
+                dbg.frameCount = 0;
+                dbg.lastFpsTime = nowMs;
+            }
+            if (nowMs - dbg.lastRender >= 250) {
+                dbg.lastRender = nowMs;
+                renderDbgStats();
+            }
+        }
+
+        // ==========================================================
+        // 6. MediaPipe 手势识别
+        // ==========================================================
+        const previewCanvas = document.getElementById('webcam-preview');
+        const previewCtx = previewCanvas.getContext('2d');
+
+        // 计算手指伸展状态 [thumb, index, middle, ring, pinky]
+        // 用"距离比较法"——与手的方向无关，比 y 坐标比较稳定得多
+        function getFingerStates(lm, handedness) {
+            const states = [0, 0, 0, 0, 0];
+            const wrist = lm[0];
+            // 四指：指尖到手腕距离 > 指根(PIP)到手腕距离 ⇒ 伸展
+            // 弯曲时指尖折回靠近手腕，距离变近
+            const fingers = [
+                { tip: 8,  pip: 6  }, // 食指
+                { tip: 12, pip: 10 }, // 中指
+                { tip: 16, pip: 14 }, // 无名指
+                { tip: 20, pip: 18 }  // 小指
+            ];
+            fingers.forEach((fg, i) => {
+                const dTip = (lm[fg.tip].x - wrist.x) ** 2 + (lm[fg.tip].y - wrist.y) ** 2;
+                const dPip = (lm[fg.pip].x - wrist.x) ** 2 + (lm[fg.pip].y - wrist.y) ** 2;
+                states[i + 1] = (dTip > dPip) ? 1 : 0;
+            });
+            // 拇指：tip(4) 到中指根(9) 距离 vs 拇指根(2) 到中指根(9) 距离
+            // 张开时拇指尖远离掌心，弯曲时贴向掌心
+            const dT = (lm[4].x - lm[9].x) ** 2 + (lm[4].y - lm[9].y) ** 2;
+            const dM = (lm[2].x - lm[9].x) ** 2 + (lm[2].y - lm[9].y) ** 2;
+            states[0] = (dT > dM) ? 1 : 0;
+            return states;
+        }
+
+        function distSq(a, b) {
+            return (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
+        }
+
+        // 单手手势识别（只依赖四指，拇指检测不参与核心判断）
+        function detectSingleHandGesture(lm, handedness) {
+            const f = getFingerStates(lm, handedness);
+            // 四指求和（食指/中指/无名指/小指）
+            const sum = f[1] + f[2] + f[3] + f[4];
+
+            // 捏合（拇指尖与食指尖距离很近，其余三指弯曲）
+            const pinchD = Math.sqrt(distSq(lm[4], lm[8]));
+            const refD = Math.sqrt(distSq(lm[0], lm[5])); // 手掌参考尺寸
+            if (pinchD < refD * 0.55 && f[2] === 0 && f[3] === 0 && f[4] === 0) {
+                return 'PINCH';
+            }
+            // 握拳：四指全弯
+            if (sum === 0) return 'FIST';
+            // 食指（仅食指伸）
+            if (f[1] === 1 && f[2] === 0 && f[3] === 0 && f[4] === 0) return 'POINT';
+            // 剪刀手（食指+中指）
+            if (f[1] === 1 && f[2] === 1 && f[3] === 0 && f[4] === 0) return 'PEACE';
+            // 全张开：3 指以上即算（宽容小指/无名指没完全张开）
+            if (sum >= 3) return 'OPEN';
+            // 默认旋转控制
+            return 'NEUTRAL';
+        }
+
+        // 双手手势识别
+        function detectTwoHandGesture(h1, h2) {
+            const g1 = detectSingleHandGesture(h1.lm, h1.h);
+            const g2 = detectSingleHandGesture(h2.lm, h2.h);
+            // 双手中点距离（归一化）
+            const palm1 = h1.lm[9];
+            const palm2 = h2.lm[9];
+            const handSize = (Math.sqrt(distSq(h1.lm[0], h1.lm[9])) + Math.sqrt(distSq(h2.lm[0], h2.lm[9]))) / 2;
+            const palmDist = Math.sqrt(distSq(palm1, palm2)) / Math.max(handSize, 0.01);
+
+            // 双拳 → 黑洞
+            if (g1 === 'FIST' && g2 === 'FIST') return 'BLACKHOLE';
+            // 双张开 + 距离近 → 超新星
+            if (g1 === 'OPEN' && g2 === 'OPEN' && palmDist < 1.0) return 'SUPERNOVA';
+            // 双张开 + 距离远 → 宇宙膨胀
+            if (g1 === 'OPEN' && g2 === 'OPEN' && palmDist > 2.5) return 'EXPAND';
+            return null; // 没匹配双手，回落单手
+        }
+
+        function onResults(results) {
+            // 帧计数（用于确认 MediaPipe 是否在跑）
+            dbg.mpFrames++;
+            if (!dbg.mpStarted) {
+                dbg.mpStarted = true;
+                console.log('[MediaPipe] onResults 首次回调，手势识别已开始运行');
+            }
+
+            previewCtx.save();
+            previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+            previewCtx.drawImage(results.image, 0, 0, previewCanvas.width, previewCanvas.height);
+
+            const hands = results.multiHandLandmarks || [];
+            const handednessList = results.multiHandedness || [];
+
+            // 绘制骨架
+            hands.forEach(lm => {
+                drawConnectors(previewCtx, lm, HAND_CONNECTIONS, { color: '#00FFCC', lineWidth: 2 });
+                drawLandmarks(previewCtx, lm, { color: '#FF5E62', lineWidth: 1, radius: 2 });
+            });
+
+            if (hands.length === 0) {
+                cameraState.handRotation = 0;
+                cameraState.isFist = false;
+                cameraState.isOpen = false;
+                setGesture('NONE', '未检测到手', '#888');
+            } else if (hands.length === 1) {
+                handleSingleHand(hands[0], handednessList[0]?.label);
+            } else {
+                // 双手
+                const h1 = { lm: hands[0], h: handednessList[0]?.label };
+                const h2 = { lm: hands[1], h: handednessList[1]?.label };
+                const two = detectTwoHandGesture(h1, h2);
+                if (two) {
+                    handleTwoHandGesture(two);
+                    // 双手时也更新一下旋转（用第一只手）
+                    updateHandRotation(h1.lm);
+                } else {
+                    // 回落到第一只手的单手手势
+                    handleSingleHand(h1.lm, h1.h);
+                }
+            }
+
+            // ===== 调试数据采集 =====
+            dbg.hands = hands.length;
+            if (hands.length >= 1) {
+                const h1label = handednessList[0]?.label || '?';
+                const g1 = detectSingleHandGesture(hands[0], h1label);
+                const f1 = getFingerStates(hands[0], h1label);
+                dbg.hand1 = `${h1label} / ${g1}`;
+                dbg.fingers1 = f1.join(' ');
+                if (hands.length >= 2) {
+                    const h2label = handednessList[1]?.label || '?';
+                    const g2 = detectSingleHandGesture(hands[1], h2label);
+                    dbg.hand2 = `${h2label} / ${g2}`;
+                } else {
+                    dbg.hand2 = '-';
+                }
+            } else {
+                dbg.hand1 = '-';
+                dbg.hand2 = '-';
+                dbg.fingers1 = '- - - - -';
+            }
+            dbg.gesture = gestureState.current;
+
+            previewCtx.restore();
+        }
+
+        function updateHandRotation(lm) {
+            const wrist = lm[0], mid = lm[9];
+            const dx = mid.x - wrist.x;
+            cameraState.handRotation = dx * -5.0;
+        }
+
+        function handleSingleHand(lm, handedness) {
+            updateHandRotation(lm);
+            const g = detectSingleHandGesture(lm, handedness);
+            // 基础控制状态
+            cameraState.isFist = (g === 'FIST');
+            cameraState.isOpen = (g === 'OPEN');
+
+            switch (g) {
+                case 'FIST':
+                    setGesture('FIST', '✊ 握拳 · 远离加速', '#ff5e62');
+                    triggerGesture('FIST');
+                    break;
+                case 'OPEN':
+                    setGesture('OPEN', '✋ 张开 · 靠近减速', '#44ff88');
+                    triggerGesture('OPEN');
+                    break;
+                case 'POINT':
+                    setGesture('POINT', '👆 食指 · 召唤流星', '#88ddff');
+                    triggerGesture('POINT');
+                    break;
+                case 'PEACE':
+                    setGesture('PEACE', '✌️ 剪刀手 · 曲速跃迁', '#bb88ff');
+                    triggerGesture('PEACE');
+                    break;
+                case 'PINCH':
+                    setGesture('PINCH', '🤏 捏合 · 能量聚拢', '#ffdd44');
+                    triggerGesture('PINCH');
+                    // 持续手势：持续增加能量
+                    gestureState.energy = Math.min(1, gestureState.energy + 0.03);
+                    break;
+                case 'NEUTRAL':
+                default:
+                    setGesture('NEUTRAL', '👋 旋转控制中', '#00ffcc');
+                    break;
+            }
+        }
+
+        function handleTwoHandGesture(g) {
+            // 双手时取消单手控制
+            cameraState.isFist = false;
+            cameraState.isOpen = false;
+            cameraState.handRotation = 0;
+
+            switch (g) {
+                case 'SUPERNOVA':
+                    setGesture('SUPERNOVA', '👏 双手合拢 · 超新星爆发', '#ffaa00');
+                    triggerGesture('SUPERNOVA');
+                    break;
+                case 'BLACKHOLE':
+                    setGesture('BLACKHOLE', '✊✊ 双拳 · 黑洞坍缩', '#aa44ff');
+                    triggerGesture('BLACKHOLE');
+                    break;
+                case 'EXPAND':
+                    setGesture('EXPAND', '🙌 双手张开 · 宇宙膨胀', '#44ddff');
+                    triggerGesture('EXPAND');
+                    break;
+            }
+        }
+
+        // 设置当前手势显示（仅 UI，不触发音效）
+        function setGesture(name, text, color) {
+            gestureState.current = name;
+            statusEl.innerText = '状态: ' + text;
+            statusEl.style.color = color;
+        }
+
+        // 触发型手势：带冷却，避免每帧触发
+        function triggerGesture(name) {
+            const now = performance.now();
+            // 持续型手势（FIST/OPEN/PINCH）只播一次音效
+            const continuous = ['FIST', 'OPEN', 'PINCH'];
+            if (gestureState.last === name && continuous.includes(name)) {
+                // 持续中，不重复触发
+                return;
+            }
+            if (now - gestureState.lastTriggerTime < gestureState.cooldown && gestureState.last !== name) {
+                // 冷却中
+                return;
+            }
+
+            gestureState.last = name;
+            gestureState.lastTriggerTime = now;
+
+            // 调试日志
+            dbgLog(name);
+
+            // 视觉提示
+            showHint(name);
+
+            switch (name) {
+                case 'FIST':       audio.playFist(); break;
+                case 'OPEN':       audio.playOpen(); break;
+                case 'POINT':
+                    audio.playPoint();
+                    // 生成多颗流星
+                    for (let i = 0; i < 4; i++) setTimeout(spawnShootingStar, i * 80);
+                    break;
+                case 'PEACE':
+                    audio.playWarp();
+                    cameraState.warpBoost = 1.0;
+                    planetUniforms.uColorShift.value = 1.0;
+                    break;
+                case 'PINCH':
+                    audio.playPinch();
+                    gestureState.energy = Math.min(1, gestureState.energy + 0.3);
+                    break;
+                case 'SUPERNOVA':
+                    audio.playSupernova();
+                    triggerSupernova();
+                    break;
+                case 'BLACKHOLE':
+                    audio.playBlackhole();
+                    planetUniforms.uCollapse.value = 1.0;
+                    planetUniforms.uColorShift.value = 0.8;
+                    break;
+                case 'EXPAND':
+                    audio.playExpand();
+                    ringUniforms1.uExpand.value = 1.0;
+                    ringUniforms2.uExpand.value = 1.0;
+                    planetUniforms.uColorShift.value = 0.5;
+                    break;
+            }
+        }
+
+        // 顶部提示 toast
+        let hintTimer = null;
+        function showHint(name) {
+            const map = {
+                POINT: '💫 流星',
+                PEACE: '🚀 曲速跃迁',
+                PINCH: '✨ 能量聚拢',
+                SUPERNOVA: '🌟 超新星',
+                BLACKHOLE: '🌀 黑洞',
+                EXPAND: '🌌 宇宙膨胀'
+            };
+            if (!map[name]) return;
+            hintToast.innerText = map[name];
+            hintToast.classList.add('show');
+            clearTimeout(hintTimer);
+            hintTimer = setTimeout(() => hintToast.classList.remove('show'), 1200);
+        }
+
+        function initMediaPipe() {
+            // 检查 MediaPipe 脚本是否加载成功（CDN 可能被墙）
+            if (typeof window.Hands === 'undefined' || typeof window.Camera === 'undefined') {
+                const loadErr = 'MediaPipe 脚本加载失败（可能是 CDN 不可访问）。请检查网络或使用 VPN，也可尝试更换 CDN。';
+                console.error(loadErr, { Hands: typeof window.Hands, Camera: typeof window.Camera });
+                alert(loadErr);
+                document.getElementById('loading').innerText = loadErr;
+                document.getElementById('loading').style.display = 'block';
+                return false;
+            }
+            const videoElement = document.getElementById('input-video');
+            const hands = new window.Hands({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+            });
+            hands.setOptions({
+                maxNumHands: 2,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+            hands.onResults(onResults);
+            console.log('[MediaPipe] 初始化完成，等待摄像头帧...');
+
+            const cameraUtils = new window.Camera(videoElement, {
+                onFrame: async () => { await hands.send({ image: videoElement }); },
+                width: 640, height: 480
+            });
+            cameraUtils.start()
+                .then(() => { console.log('[MediaPipe] 摄像头已启动'); })
+                .catch(err => {
+                    console.error('[MediaPipe] 摄像头启动失败:', err);
+                    document.getElementById('loading').innerText = '摄像头启动失败: ' + err;
+                    document.getElementById('loading').style.display = 'block';
+                });
+
+            previewCanvas.width = 200;
+            previewCanvas.height = 150;
+            return true;
+        }
+
+        // ==========================================================
+        // 7. 启动流程
+        // ==========================================================
+        const startOverlay = document.getElementById('start-overlay');
+        const startBtn = document.getElementById('start-btn');
+        const audioToggle = document.getElementById('audio-toggle');
+        const resetBtn = document.getElementById('reset-btn');
+
+        // 预先初始化 Three（让背景先渲染出来）
+        initThree();
+        animate();
+
+        startBtn.addEventListener('click', async () => {
+            startBtn.disabled = true;
+            startBtn.innerText = '连接中...';
+            try {
+                await audio.init();
+                audio.startBGM();
+                initMediaPipe();
+                startOverlay.style.opacity = '0';
+                setTimeout(() => startOverlay.style.display = 'none', 1200);
+            } catch (e) {
+                startBtn.disabled = false;
+                startBtn.innerText = '启程';
+                console.error(e);
+                alert('启动失败：' + e.message);
+            }
+        });
+
+        audioToggle.addEventListener('click', () => {
+            const muted = !audio.muted;
+            audio.setMuted(muted);
+            audioToggle.innerText = muted ? '🔇' : '🔊';
+        });
+
+        resetBtn.addEventListener('click', () => {
+            cameraState.radius = CONFIG.defaultDistance;
+            cameraState.phi = 0;
+            cameraState.zoomVelocity = 0;
+            cameraState.warpBoost = 0;
+        });
+    </script>
+</body>
+</html>
