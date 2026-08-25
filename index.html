@@ -347,6 +347,7 @@ section[id]{scroll-margin-top:84px}
 .hero-title{font-size:clamp(52px,6.4vw,112px);letter-spacing:.05em;white-space:nowrap;color:#ff6b4a}
 .hero-name-sub{display:flex;align-items:center;gap:16px;margin:20px 0 0 4px;font-size:16px;letter-spacing:.55em;color:var(--muted)}
 .hero-name-sub::before{content:"";width:36px;height:1px;background:var(--accent)}
+.stroke-text{display:block;height:auto;overflow:visible}
 .hero-kicker{margin-bottom:26px}
 .hero-line{margin:32px 0 26px}
 
@@ -1786,11 +1787,142 @@ document.documentElement.classList.add('js');
       });
     }
   }
+  /* ===== StrokeText 描边文字（仿 @react-bits/StrokeText · vanilla + GSAP） ===== */
+  function initStrokeText(el, o) {
+    if (!el || !window.gsap) return null;
+    o = o || {};
+    var text = o.text || el.getAttribute('data-text') || (el.textContent || '').trim();
+    if (!text) return null;
+    var NS = 'http://www.w3.org/2000/svg';
+    var fontFamily = o.fontFamily || getComputedStyle(el).fontFamily;
+    var fontWeight = o.fontWeight || 800;
+    var letterSpacingEm = o.letterSpacing != null ? o.letterSpacing : 0.05;
+    var strokeColor = o.strokeColor || '#ffc0ab';
+    var fillColor = o.fillColor || '#ff6b4a';
+    var strokeWidth = o.strokeWidth != null ? o.strokeWidth : 1.8;
+    var drawDuration = o.drawDuration || 1.5;
+    var fillDelay = o.fillDelay != null ? o.fillDelay : 0.3;
+    var stagger = o.stagger != null ? o.stagger : 0.06;
+    var drawEase = o.drawEase || 'power2.inOut';
+    var wipeEase = o.wipeEase || 'power3.inOut';
+    var baseFs = 100;
+    var ctx = document.createElement('canvas').getContext('2d');
+    ctx.font = fontWeight + ' ' + baseFs + 'px ' + fontFamily;
+    var chars = text.split('');
+    var widths = chars.map(function (c) { return ctx.measureText(c).width; });
+    var ls = baseFs * letterSpacingEm;
+    var totalW = 0;
+    for (var i = 0; i < chars.length; i++) totalW += widths[i] + (i < chars.length - 1 ? ls : 0);
+    var pad = baseFs * 0.08;
+    var W = Math.ceil(totalW + pad * 2);
+    var H = Math.ceil(baseFs * 1.06 + pad * 2);
+
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('class', 'stroke-text');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', text);
+    svg.setAttribute('data-text', text);
+
+    var defs = document.createElementNS(NS, 'defs');
+    svg.appendChild(defs);
+    var uid = 'st' + Math.random().toString(36).slice(2, 8);
+    var strokes = [], wipes = [], wipesW = [];
+
+    var x = pad;
+    chars.forEach(function (c, i) {
+      var w = widths[i];
+      if (c !== ' ') {
+        var clipId = uid + '-c' + i;
+        var cp = document.createElementNS(NS, 'clipPath');
+        cp.setAttribute('id', clipId);
+        var r = document.createElementNS(NS, 'rect');
+        r.setAttribute('class', 'st-wipe');
+        r.setAttribute('x', x - ls * 0.7);
+        r.setAttribute('y', pad * 0.4);
+        r.setAttribute('width', w + ls * 1.4);
+        r.setAttribute('height', H - pad * 0.8);
+        cp.appendChild(r);
+        defs.appendChild(cp);
+        wipes.push(r);
+        wipesW.push(w + ls * 1.4);
+
+        var t1 = document.createElementNS(NS, 'text');
+        t1.setAttribute('class', 'st-stroke');
+        t1.setAttribute('x', x);
+        t1.setAttribute('y', pad + baseFs * 0.86);
+        t1.setAttribute('font-family', fontFamily);
+        t1.setAttribute('font-weight', fontWeight);
+        t1.setAttribute('font-size', baseFs);
+        t1.setAttribute('fill', 'none');
+        t1.setAttribute('stroke', strokeColor);
+        t1.setAttribute('stroke-width', strokeWidth);
+        t1.setAttribute('stroke-linecap', 'round');
+        t1.setAttribute('stroke-linejoin', 'round');
+        t1.textContent = c;
+        strokes.push(t1);
+
+        var t2 = document.createElementNS(NS, 'text');
+        t2.setAttribute('class', 'st-fill');
+        t2.setAttribute('x', x);
+        t2.setAttribute('y', pad + baseFs * 0.86);
+        t2.setAttribute('font-family', fontFamily);
+        t2.setAttribute('font-weight', fontWeight);
+        t2.setAttribute('font-size', baseFs);
+        t2.setAttribute('fill', fillColor);
+        t2.setAttribute('clip-path', 'url(#' + clipId + ')');
+        t2.textContent = c;
+        svg.appendChild(t2);
+        svg.appendChild(t1);
+      }
+      x += w + ls;
+    });
+
+    el.textContent = '';
+    el.appendChild(svg);
+
+    function sizeSvg() {
+      var em = parseFloat(getComputedStyle(el).fontSize) || 40;
+      svg.style.width = Math.round(W * (em / baseFs)) + 'px';
+    }
+    sizeSvg();
+    var rsTimer = null;
+    window.addEventListener('resize', function () {
+      clearTimeout(rsTimer);
+      rsTimer = setTimeout(sizeSvg, 150);
+    });
+
+    strokes.forEach(function (t) {
+      var len = 2400;
+      t.setAttribute('stroke-dasharray', len);
+      t.setAttribute('stroke-dashoffset', len);
+    });
+    wipes.forEach(function (r) { r.setAttribute('width', 0); });
+
+    var tl = gsap.timeline({ paused: true, defaults: { ease: drawEase } });
+    tl.to(strokes, { attr: { strokeDashoffset: 0 }, duration: drawDuration, stagger: stagger }, 0)
+      .to(wipes, { attr: { width: function (i) { return wipesW[i]; } }, duration: drawDuration * 0.5, ease: wipeEase, stagger: stagger }, fillDelay);
+    return tl;
+  }
   /* ===== GSAP Premium Motion ===== */
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!reduceMotion && window.gsap && window.ScrollTrigger) {
     gsap.registerPlugin(ScrollTrigger);
     ScrollTrigger.config({ ignoreMobileResize: true });
+
+    /* StrokeText 首屏标题描边 */
+    var heroTitleEl = document.querySelector('.hero-title');
+    var heroStrokeTl = initStrokeText(heroTitleEl, {
+      text: 'LI JIAJU',
+      strokeColor: '#ffc0ab',
+      fillColor: '#ff6b4a',
+      strokeWidth: 1.8,
+      drawDuration: 1.5,
+      fillDelay: 0.3,
+      stagger: 0.06,
+      letterSpacing: 0.05
+    });
 
     /* Opening animation: curtain + hero reveal */
     var heroTl = gsap.timeline({ defaults: { ease: 'power4.out' }, paused: true });
@@ -1799,13 +1931,14 @@ document.documentElement.classList.add('js');
       .set('#curtain', { display: 'none' })
       .from('.hero-visual', { scale: 0.62, opacity: 0, duration: 1.3, ease: 'power3.out' }, '-=0.55')
       .from('.hero-kicker', { y: 26, opacity: 0, duration: 0.8 }, '-=0.75')
-      .from('.hero-title', { clipPath: 'inset(0 0 100% 0)', y: 80, scale: 1.1, letterSpacing: '0.22em', opacity: 0.001, duration: 1.15 }, '-=0.7')
+      .from('.hero-title', { y: 60, scale: 1.06, opacity: 0.001, duration: 0.9 }, '-=0.7')
       .from('.hero-name-sub', { y: 22, opacity: 0, duration: 0.7 }, '-=0.75')
       .from('.hero-line', { scaleX: 0, transformOrigin: 'left center', duration: 0.9 }, '-=0.5')
       .from('.hero-sub', { y: 26, opacity: 0, duration: 0.85 }, '-=0.55')
       .from('.hero-cta', { y: 24, opacity: 0, duration: 0.8 }, '-=0.6')
       .from('.hero-meta', { y: 18, opacity: 0, duration: 0.8 }, '-=0.55')
       .from('.hero-scroll', { opacity: 0, duration: 0.6 }, '-=0.4');
+    if (heroStrokeTl) heroTl.add(heroStrokeTl, 1.55);
 
     /* 幕布品牌与提示即刻浮现 */
     gsap.from('.curtain-brand', { scale: 0.82, opacity: 0, duration: 0.7, ease: 'power3.out' });
