@@ -106,11 +106,12 @@ section[id]{scroll-margin-top:84px}
 .nav-links a:hover::after{width:100%}
 
 /* Hero 首屏 */
-.hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden}
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;background:var(--bg)}
 .hero-media{position:absolute;inset:0;z-index:0}
-#heroBg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.32;filter:saturate(1.18) contrast(1.12)}
+#heroBg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.82;filter:saturate(1.18) contrast(1.12)}
+#moleculeCanvas{position:absolute;inset:0;width:100%;height:100%;opacity:.35;transition:opacity 1.2s ease}
 
-#lightfallCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;display:block}
+#lightfallCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:-1;display:block}
 .hero-overlay{position:absolute;inset:0;z-index:1;background:
   radial-gradient(1100px 560px at 76% 26%, rgba(255,107,74,.07), transparent 60%),
   linear-gradient(180deg, rgba(7,9,11,.62) 0%, rgba(7,9,11,.28) 42%, rgba(7,9,11,.9) 100%)}
@@ -395,7 +396,7 @@ section[id]{scroll-margin-top:84px}
   .sec{padding:96px 0}
 }
 /* ===== Hero 优化（参考头部参考图风格） ===== */
-.hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden}
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;background:var(--bg)}
 .hero-inner{padding-top:36px}
 .hero-inner > *:not(.hero-ghost){max-width:720px}
 .hero-overlay{background:
@@ -894,6 +895,7 @@ html[data-theme="light"] .mobile-menu{background:rgba(242,241,238,.95)}
 </style>
 </head>
 <body>
+<canvas id="lightfallCanvas" aria-hidden="true"></canvas>
 <div class="curtain" id="curtain" aria-hidden="true">
   <span class="curtain-brand mono"><b>LJJ</b></span>
   <span class="curtain-hint mono">♪ 点击进入 · 开启音乐</span>
@@ -949,7 +951,7 @@ html[data-theme="light"] .mobile-menu{background:rgba(242,241,238,.95)}
       <!-- 首屏背景图 -->
       <img id="heroBg" src="assets/hero-bg.jpg" alt="" />
       <!-- 无视频时自动使用分子场动画背景 -->
-      <canvas id="lightfallCanvas"></canvas>
+      <canvas id="moleculeCanvas"></canvas>
     </div>
     <div class="hero-overlay"></div>
     <!-- 右侧发光核心：参考首屏参考图的中央光体 -->
@@ -2425,9 +2427,79 @@ void main() {
     };
   }
 
+  /* 分子场背景动画（视频缺失时的默认背景） */
+  var canvas = document.getElementById('moleculeCanvas');
+  if (canvas && canvas.getContext) {
+    var ctx = canvas.getContext('2d');
+    var W, H, dots = [];
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function resize() {
+      W = canvas.width = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+      init();
+    }
+    function init() {
+      var n = Math.min(90, Math.floor(W * H / 24000));
+      dots = [];
+      for (var i = 0; i < n; i++) {
+        dots.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.22,
+          vy: (Math.random() - 0.5) * 0.22,
+          r: Math.random() * 1.7 + 0.6
+        });
+      }
+    }
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      var link = 110;
+      for (var i = 0; i < dots.length; i++) {
+        var p = dots[i];
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < -20) p.x = W + 20; else if (p.x > W + 20) p.x = -20;
+        if (p.y < -20) p.y = H + 20; else if (p.y > H + 20) p.y = -20;
+        for (var j = i + 1; j < dots.length; j++) {
+          var q = dots[j];
+          var dx = p.x - q.x, dy = p.y - q.y;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < link) {
+            ctx.strokeStyle = 'rgba(255,150,120,' + ((1 - d / link) * 0.16).toFixed(3) + ')';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+          }
+        }
+      }
+      for (var k = 0; k < dots.length; k++) {
+        var s = dots[k];
+        ctx.fillStyle = 'rgba(255,175,150,0.5)';
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    var mpaused = false;
+    function frame() {
+      if (siteEntered && !mpaused && !reduce) draw();
+      requestAnimationFrame(frame);
+    }
+    resize();
+    if (reduce) draw(); else requestAnimationFrame(frame);
+    window.addEventListener('resize', resize);
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          mpaused = !en.isIntersecting;
+          if (!mpaused && !reduce) requestAnimationFrame(draw);
+        });
+      }, { threshold: 0 }).observe(canvas);
+    }
+  }
+
+  /* ===== Lightfall 流星雨 · 全局背景层（首页之后各版块的背景） ===== */
   var lfCanvas = document.getElementById('lightfallCanvas');
   var lightfall = null;
-  var lfInView = true, lfHidden = false, lfReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lfHidden = false, lfAtHero = true, lfReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var lfUpdate = function () {};
   if (lfCanvas) {
     lightfall = initLightfall(lfCanvas, {
@@ -2454,18 +2526,23 @@ void main() {
         lightfall.drawOnce();
       } else {
         lfUpdate = function () {
-          lightfall.setPaused(!siteEntered || lfHidden || !lfInView);
+          lightfall.setPaused(!siteEntered || lfHidden || lfAtHero);
         };
-        if ('IntersectionObserver' in window) {
-          new IntersectionObserver(function (entries) {
-            entries.forEach(function (en) { lfInView = en.isIntersecting; lfUpdate(); });
-          }, { threshold: 0 }).observe(lfCanvas);
-        }
+        var lfScrollRaf = 0;
+        var lfOnScroll = function () {
+          if (lfScrollRaf) return;
+          lfScrollRaf = requestAnimationFrame(function () {
+            lfScrollRaf = 0;
+            lfAtHero = window.scrollY < window.innerHeight * 0.85;
+            lfUpdate();
+          });
+        };
+        window.addEventListener('scroll', lfOnScroll, { passive: true });
         document.addEventListener('visibilitychange', function () {
           lfHidden = document.hidden;
           lfUpdate();
         });
-        lfUpdate();
+        lfOnScroll();
       }
     }
   }
