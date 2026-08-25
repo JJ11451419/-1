@@ -6,8 +6,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
-    <!-- 资源加版本号:修改代码后把 v=3 改成 v=4,强制浏览器重新下载(解决线上缓存问题) -->
-    <link rel="stylesheet" href="style.css?v=3">
+    <!-- 资源加版本号:修改代码后把 v=4 改成 v=5,强制浏览器重新下载(解决线上缓存问题) -->
+    <link rel="stylesheet" href="style.css?v=4">
     <style>
         /* 防止手机长按选中文字 + 允许 overlay 内按钮可点 */
         html, body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
@@ -59,54 +59,115 @@
                 <span class="label">敌人</span>
                 <span id="enemies">0</span>
             </div>
+            <div class="info-item" id="mineItem">
+                <span class="label">地雷</span>
+                <span id="mines">0</span>
+            </div>
         </div>
 
         <!-- 游戏画布 -->
         <canvas id="gameCanvas" width="624" height="624"></canvas>
 
-        <!-- 开始界面 -->
-        <div id="startScreen" class="overlay">
+        <!-- ========== 主菜单 ========== -->
+        <div id="mainMenu" class="overlay">
             <h1>坦 克 大 战</h1>
             <p class="subtitle">BATTLE CITY</p>
-            <div class="controls-info">
-                <p>🎮 操作说明</p>
-                <p>W / ↑ — 向上移动</p>
-                <p>S / ↓ — 向下移动</p>
-                <p>A / ← — 向左移动</p>
-                <p>D / → — 向右移动</p>
-                <p>空格 / J — 发射子弹</p>
-                <p>P — 暂停游戏</p>
+            <div class="menu-buttons">
+                <button id="campaignBtn" class="game-btn menu-btn">闯 关 模 式</button>
+                <button id="survivalBtn" class="game-btn menu-btn">生 存 无 尽 模 式</button>
+                <button id="howToBtn" class="game-btn menu-btn">玩 法 说 明</button>
             </div>
-            <!-- 开始按钮: 同时加 inline 的 touchend+click 兜底,即使 game.js 还没加载也能给反馈 -->
-            <button id="startBtn" class="game-btn"
-                    ontouchend="if(!window.__gameReady){document.getElementById('loadErrorBar').style.display='block';event.preventDefault();}"
-                    onclick="if(!window.__gameReady){document.getElementById('loadErrorBar').style.display='block';}">
-                开 始 游 戏
-            </button>
+            <p class="survival-highscore">生存最高分：<span id="survivalHighDisplay">0</span></p>
+            <p class="footer-text">浪尖儿社区--李家驹</p>
         </div>
 
-        <!-- 暂停界面 -->
+        <!-- ========== 关卡选择 ========== -->
+        <div id="levelSelect" class="overlay hidden">
+            <h2>选择关卡</h2>
+            <p class="select-hint">已通关关卡可重复挑战</p>
+            <div id="levelGrid" class="level-grid"></div>
+            <button id="backToMenuBtn" class="game-btn small-btn">返 回 主 菜 单</button>
+        </div>
+
+        <!-- ========== 关卡简介 ========== -->
+        <div id="levelIntro" class="overlay hidden">
+            <h2 id="introTitle">第 1 关</h2>
+            <p id="introName" class="intro-name">新手入门</p>
+            <p id="introDesc" class="intro-desc"></p>
+            <div class="intro-buttons">
+                <button id="introBackBtn" class="game-btn small-btn">返回</button>
+                <button id="introStartBtn" class="game-btn">开 始 挑 战</button>
+            </div>
+        </div>
+
+        <!-- ========== 玩法说明 ========== -->
+        <div id="howToScreen" class="overlay hidden">
+            <h2>玩 法 说 明</h2>
+            <div class="how-to-content">
+                <div class="how-section">
+                    <p class="how-title">🎮 基本操作</p>
+                    <p>WASD / 方向键 — 移动坦克</p>
+                    <p>空格 / J — 发射炮弹</p>
+                    <p>K / 地雷按钮 — 埋设地雷（需先拾取）</p>
+                    <p>P / 暂停按钮 — 暂停游戏</p>
+                </div>
+                <div class="how-section">
+                    <p class="how-title">🧱 地形说明</p>
+                    <p>砖墙：可被炮弹打碎，开辟路线</p>
+                    <p>钢墙：不可摧毁，只能绕行躲避</p>
+                    <p>水域：坦克无法通过，炮弹可穿</p>
+                    <p>草丛：坦克隐身，看炮口火光辨位</p>
+                    <p>地雷：踩到爆炸，伤害附近坦克</p>
+                </div>
+                <div class="how-section">
+                    <p class="how-title">⚔️ 核心机制</p>
+                    <p>炮弹相撞会互相抵消，可主动拦截敌方子弹</p>
+                    <p>工程坦克会修复砖墙，须优先击杀</p>
+                    <p>击杀敌人有概率掉落地雷道具</p>
+                    <p>地震会随机把砖墙变成钢墙，改变战局</p>
+                </div>
+                <div class="how-section">
+                    <p class="how-title">🏆 通关目标</p>
+                    <p>闯关：消灭全部敌人，保护基地老鹰</p>
+                    <p>生存：无基地，尽可能存活拿高分</p>
+                    <p>通关 12 关后解锁生存无尽模式</p>
+                </div>
+            </div>
+            <button id="howToBackBtn" class="game-btn small-btn">返 回 主 菜 单</button>
+        </div>
+
+        <!-- ========== 暂停界面 ========== -->
         <div id="pauseScreen" class="overlay hidden">
             <h2>⏸ 游戏暂停</h2>
-            <p>按 P 键继续 / 点左下 ⏸ 按钮</p>
+            <p>按 P 键继续 / 点右下 ⏸ 按钮</p>
+            <button id="pauseMenuBtn" class="game-btn small-btn">返回主菜单</button>
         </div>
 
-        <!-- 游戏结束界面 -->
+        <!-- ========== 游戏结束界面 ========== -->
         <div id="gameOverScreen" class="overlay hidden">
             <h2 id="gameOverTitle">游戏结束</h2>
             <p id="gameOverMsg">再接再厉！</p>
             <p>最终分数：<span id="finalScore">0</span></p>
-            <!-- 重开按钮:同样加兜底 -->
-            <button id="restartBtn" class="game-btn"
-                    ontouchend="if(!window.__gameReady){document.getElementById('loadErrorBar').style.display='block';event.preventDefault();}"
-                    onclick="if(!window.__gameReady){document.getElementById('loadErrorBar').style.display='block';}">
-                重 新 开 始
-            </button>
+            <div class="intro-buttons">
+                <button id="overMenuBtn" class="game-btn small-btn">主菜单</button>
+                <button id="restartBtn" class="game-btn">重 新 开 始</button>
+            </div>
+        </div>
+
+        <!-- ========== 通关全胜界面 ========== -->
+        <div id="victoryScreen" class="overlay hidden">
+            <h2>🎉 全 部 通 关 ！</h2>
+            <p>恭喜击败最终 BOSS，解锁【生存无尽模式】</p>
+            <p>最终分数：<span id="victoryScore">0</span></p>
+            <div class="intro-buttons">
+                <button id="victoryMenuBtn" class="game-btn small-btn">主菜单</button>
+                <button id="victorySurvivalBtn" class="game-btn">挑战生存模式</button>
+            </div>
         </div>
     </div>
 
     <!-- ========== 移动端触屏控件 ========== -->
-    <!-- 竖屏提示遮罩:加一个"横屏了还是不消失?"的关闭入口,兼容微信/QQ等内置浏览器方向不准 -->
+    <!-- 竖屏提示遮罩 -->
     <div id="portraitMask" class="portrait-mask">
         <div class="rotate-icon">📱</div>
         <p>请将手机旋转为横屏</p>
@@ -130,15 +191,18 @@
     <!-- 右侧操作按钮 -->
     <div id="touchActions" class="touch-actions">
         <button id="pauseBtn" class="action-btn action-pause" aria-label="暂停">⏸</button>
-        <button id="fireBtn" class="action-btn action-fire" data-key="Space" aria-label="射击">🔥</button>
+        <div class="action-row">
+            <button id="mineBtn" class="action-btn action-mine" aria-label="埋雷">💣</button>
+            <button id="fireBtn" class="action-btn action-fire" data-key="Space" aria-label="射击">🔥</button>
+        </div>
     </div>
 
-    <!-- 资源加版本号:下次修改后把 v=3 改成 v=4 -->
-    <script src="game.js?v=3" onerror="document.getElementById('loadErrorBar').style.display='block';"></script>
+    <!-- 资源加版本号:下次修改后把 v=4 改成 v=5 -->
+    <script src="game.js?v=4" onerror="document.getElementById('loadErrorBar').style.display='block';"></script>
     <script>
         // game.js 加载完成后置标志,让 inline 兜底不触发
         window.__gameReady = true;
-        // 样式加载检测(简单方案):若 .info-panel 没有 border 说明 style.css 未加载
+        // 样式加载检测
         setTimeout(function () {
             try {
                 var el = document.querySelector('.info-panel');
