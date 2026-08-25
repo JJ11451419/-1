@@ -330,6 +330,7 @@ section[id]{scroll-margin-top:84px}
   .about-grid{grid-template-columns:1fr}
   .proj-grid{grid-template-columns:1fr}
   .str-grid{grid-template-columns:1fr}
+  .hobby-grid{grid-template-columns:1fr}
   .stats{grid-template-columns:repeat(2,1fr)}
   .hero-side{display:none}
   .hero-scroll{display:none}
@@ -822,6 +823,10 @@ html[data-theme="light"] .mobile-menu{background:rgba(242,241,238,.95)}
   .stats{grid-template-columns:repeat(2,1fr)}
   .hobby-facts{grid-template-columns:repeat(3,1fr)}
   .proj-card.wide .proj-cover{aspect-ratio:16/10}
+}
+@media (max-width:680px){
+  .hobby-grid{gap:22px}
+  .hobby-cover{aspect-ratio:4/3}
 }
 @media (hover:none) and (pointer:coarse){
   .about-card,.str-card{--edge-proximity:56;--cursor-angle:315deg}
