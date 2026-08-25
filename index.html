@@ -108,9 +108,9 @@ section[id]{scroll-margin-top:84px}
 /* Hero 首屏 */
 .hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden}
 .hero-media{position:absolute;inset:0;z-index:0}
-#heroBg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.82;filter:saturate(1.18) contrast(1.12)}
+#heroBg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.32;filter:saturate(1.18) contrast(1.12)}
 
-#moleculeCanvas{position:absolute;inset:0;width:100%;height:100%;opacity:.35;transition:opacity 1.2s ease}
+#lightfallCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;display:block}
 .hero-overlay{position:absolute;inset:0;z-index:1;background:
   radial-gradient(1100px 560px at 76% 26%, rgba(255,107,74,.07), transparent 60%),
   linear-gradient(180deg, rgba(7,9,11,.62) 0%, rgba(7,9,11,.28) 42%, rgba(7,9,11,.9) 100%)}
@@ -949,7 +949,7 @@ html[data-theme="light"] .mobile-menu{background:rgba(242,241,238,.95)}
       <!-- 首屏背景图 -->
       <img id="heroBg" src="assets/hero-bg.jpg" alt="" />
       <!-- 无视频时自动使用分子场动画背景 -->
-      <canvas id="moleculeCanvas"></canvas>
+      <canvas id="lightfallCanvas"></canvas>
     </div>
     <div class="hero-overlay"></div>
     <!-- 右侧发光核心：参考首屏参考图的中央光体 -->
@@ -2063,6 +2063,7 @@ document.documentElement.classList.add('js');
       if (entered) return;
       entered = true;
       siteEntered = true;
+      if (typeof lfUpdate === 'function') lfUpdate();
       var bg = document.getElementById('bgMusic');
       var tg = document.getElementById('musicToggle');
       if (bg && bg.paused) {
@@ -2170,76 +2171,303 @@ document.documentElement.classList.add('js');
     requestAnimationFrame(step);
   }
 
-  /* 分子场背景动画（视频缺失时的默认背景） */
-  var canvas = document.getElementById('moleculeCanvas');
-  if (canvas && canvas.getContext) {
-    var ctx = canvas.getContext('2d');
-    var W, H, dots = [];
-    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* ===== Lightfall 流星雨背景（仿 @react-bits/Lightfall · 原生 WebGL 实现） ===== */
+  function initLightfall(canvas, o) {
+    var gl = null;
+    try {
+      gl = canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: false, powerPreference: 'high-performance' });
+      if (!gl) gl = canvas.getContext('experimental-webgl', { alpha: true, antialias: true, premultipliedAlpha: false });
+    } catch (e) { gl = null; }
+    if (!gl) return null;
+    o = o || {};
+    function hexToRGB(hex) {
+      var c = String(hex).replace('#', '').padEnd(6, '0');
+      return [parseInt(c.slice(0, 2), 16) / 255, parseInt(c.slice(2, 4), 16) / 255, parseInt(c.slice(4, 6), 16) / 255];
+    }
+    function prepColors(input) {
+      var base = (input && input.length ? input : ['#A6C8FF', '#5227FF', '#FF9FFC']).slice(0, 8);
+      var count = base.length, arr = [], i;
+      for (i = 0; i < 8; i++) arr.push(hexToRGB(base[Math.min(i, base.length - 1)]));
+      var avg = [0, 0, 0];
+      for (i = 0; i < count; i++) { avg[0] += arr[i][0]; avg[1] += arr[i][1]; avg[2] += arr[i][2]; }
+      avg[0] /= count; avg[1] /= count; avg[2] /= count;
+      return { arr: arr, count: count, avg: avg };
+    }
+    var VERT = 'attribute vec2 position;attribute vec2 uv;varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position,0.0,1.0);}';
+    var FRAG = `
+precision highp float;
 
+uniform vec3  iResolution;
+uniform vec2  iMouse;
+uniform float iTime;
+
+uniform vec3  uColor0;
+uniform vec3  uColor1;
+uniform vec3  uColor2;
+uniform vec3  uColor3;
+uniform vec3  uColor4;
+uniform vec3  uColor5;
+uniform vec3  uColor6;
+uniform vec3  uColor7;
+uniform int   uColorCount;
+
+uniform vec3  uBgColor;
+uniform vec3  uMouseColor;
+uniform float uSpeed;
+uniform int   uStreakCount;
+uniform float uStreakWidth;
+uniform float uStreakLength;
+uniform float uGlow;
+uniform float uDensity;
+uniform float uTwinkle;
+uniform float uZoom;
+uniform float uBgGlow;
+uniform float uOpacity;
+uniform float uMouseEnabled;
+uniform float uMouseStrength;
+uniform float uMouseRadius;
+
+varying vec2 vUv;
+
+vec3 palette(float h) {
+  int count = uColorCount;
+  if (count < 1) count = 1;
+  int idx = int(floor(clamp(h, 0.0, 0.999999) * float(count)));
+  if (idx <= 0) return uColor0;
+  if (idx == 1) return uColor1;
+  if (idx == 2) return uColor2;
+  if (idx == 3) return uColor3;
+  if (idx == 4) return uColor4;
+  if (idx == 5) return uColor5;
+  if (idx == 6) return uColor6;
+  return uColor7;
+}
+
+vec3 tanhv(vec3 x) {
+  vec3 e = exp(-2.0 * x);
+  return (1.0 - e) / (1.0 + e);
+}
+
+vec2 sceneC(vec2 frag, vec2 r) {
+  vec2 P = (frag + frag - r) / r.x;
+  float z = 0.0;
+  float d = 1e3;
+  vec4 O = vec4(0.0);
+  for (int k = 0; k < 39; k++) {
+    if (d <= 1e-4) break;
+    O = z * normalize(vec4(P, uZoom, 0.0)) - vec4(0.0, 4.0, 1.0, 0.0) / 4.5;
+    d = 1.0 - sqrt(length(O * O));
+    z += d;
+  }
+  return vec2(O.x, atan(O.z, O.y));
+}
+
+void mainImage(out vec4 o, vec2 C) {
+  vec2 r = iResolution.xy;
+  vec2 uv0 = (C + C - r) / r.x;
+  float T = 0.1 * iTime * uSpeed + 9.0;
+  float angRings = max(1.0, floor(6.28318530718 * max(uDensity, 0.05) + 0.5));
+  vec2 Y = vec2(5e-3, 6.28318530718 / angRings);
+
+  vec2 c0 = sceneC(C, r);
+  vec2 cdx = sceneC(C + vec2(1.0, 0.0), r);
+  vec2 cdy = sceneC(C + vec2(0.0, 1.0), r);
+  vec2 dCx = cdx - c0;
+  vec2 dCy = cdy - c0;
+  dCx.y -= 6.28318530718 * floor(dCx.y / 6.28318530718 + 0.5);
+  dCy.y -= 6.28318530718 * floor(dCy.y / 6.28318530718 + 0.5);
+  vec2 fw = abs(dCx) + abs(dCy);
+  C = c0;
+
+  vec2 P = vec2(2.0, 1.0) * uv0 - (r / r.x) * vec2(0.0, 1.0);
+  vec4 O = vec4(uBgColor * 90.0 * uBgGlow / (1e3 * dot(P, P) + 6.0), 0.0);
+
+  float mGlow = 0.0;
+  if (uMouseEnabled > 0.5) {
+    vec2 mN = (iMouse + iMouse - r) / r.x;
+    float md = length(uv0 - mN);
+    mGlow = exp(-md * md / max(uMouseRadius * uMouseRadius, 1e-4)) * uMouseStrength;
+    O.rgb += uMouseColor * mGlow * 0.25;
+  }
+
+  float zr = 5e-4 * uStreakWidth;
+  vec2 rr = vec2(max(length(fw), 1e-5));
+  float tail = 19.0 / max(uStreakLength, 0.05);
+
+  for (int m = 0; m < 16; m++) {
+    if (m >= uStreakCount) break;
+    float jf = float(m) + 1.0;
+    float ic = fract(sin(dot(vec2(jf, floor(C.x / Y.x + 0.5)), vec2(7.0, 11.0)) * 73.0));
+    vec2 Pp = C - (T + T * ic) * vec2(0.0, 1.0);
+    Pp -= floor(Pp / Y + 0.5) * Y;
+    float h = fract(8663.0 * ic);
+    vec3 col = palette(h);
+    float weight = mix(1.5, 1.0 + sin(T + 7.0 * h + 4.0), uTwinkle);
+    weight *= (1.0 + mGlow * 2.0);
+    vec2 inner = vec2(length(max(Pp, vec2(-1.0, 0.0))), length(Pp) - zr) - zr;
+    vec2 sm = vec2(1.0) - smoothstep(-rr, rr, inner);
+    O.rgb += dot(sm, vec2(exp(tail * Pp.y), 3.0)) * col * weight;
+    C.x += Y.x / 8.0;
+  }
+
+  vec3 colr = sqrt(tanhv(max(O.rgb * uGlow - vec3(0.04, 0.08, 0.02), 0.0)));
+  o = vec4(colr, uOpacity);
+}
+
+void main() {
+  vec4 color;
+  mainImage(color, vUv * iResolution.xy);
+  gl_FragColor = color;
+}
+`;
+    function compile(type, src) {
+      var s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.error('Lightfall shader: ' + gl.getShaderInfoLog(s)); gl.deleteShader(s); return null; }
+      return s;
+    }
+    var vs = compile(gl.VERTEX_SHADER, VERT), fs = compile(gl.FRAGMENT_SHADER, FRAG);
+    if (!vs || !fs) return null;
+    var prog = gl.createProgram();
+    gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { console.error('Lightfall link: ' + gl.getProgramInfoLog(prog)); return null; }
+    gl.useProgram(prog);
+    var geo = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, geo);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 0, 0, 3, -1, 2, 0, -1, 3, 0, 2]), gl.STATIC_DRAW);
+    var aPos = gl.getAttribLocation(prog, 'position');
+    var aUv = gl.getAttribLocation(prog, 'uv');
+    gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
+    gl.enableVertexAttribArray(aUv); gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
+    function loc(name) { return gl.getUniformLocation(prog, name); }
+    var P = prepColors(o.colors);
+    var u = {
+      iResolution: loc('iResolution'), iMouse: loc('iMouse'), iTime: loc('iTime'),
+      uColor0: loc('uColor0'), uColor1: loc('uColor1'), uColor2: loc('uColor2'), uColor3: loc('uColor3'),
+      uColor4: loc('uColor4'), uColor5: loc('uColor5'), uColor6: loc('uColor6'), uColor7: loc('uColor7'),
+      uColorCount: loc('uColorCount'), uBgColor: loc('uBgColor'), uMouseColor: loc('uMouseColor'),
+      uSpeed: loc('uSpeed'), uStreakCount: loc('uStreakCount'), uStreakWidth: loc('uStreakWidth'),
+      uStreakLength: loc('uStreakLength'), uGlow: loc('uGlow'), uDensity: loc('uDensity'),
+      uTwinkle: loc('uTwinkle'), uZoom: loc('uZoom'), uBgGlow: loc('uBgGlow'), uOpacity: loc('uOpacity'),
+      uMouseEnabled: loc('uMouseEnabled'), uMouseStrength: loc('uMouseStrength'), uMouseRadius: loc('uMouseRadius')
+    };
+    var i;
+    for (i = 0; i < 8; i++) gl.uniform3f(u['uColor' + i], P.arr[i][0], P.arr[i][1], P.arr[i][2]);
+    gl.uniform1i(u.uColorCount, P.count);
+    var bg = hexToRGB(o.backgroundColor || '#0A29FF');
+    gl.uniform3f(u.uBgColor, bg[0], bg[1], bg[2]);
+    gl.uniform3f(u.uMouseColor, P.avg[0], P.avg[1], P.avg[2]);
+    gl.uniform1f(u.uSpeed, o.speed != null ? o.speed : 0.5);
+    gl.uniform1i(u.uStreakCount, Math.max(1, Math.min(16, Math.round(o.streakCount != null ? o.streakCount : 2))));
+    gl.uniform1f(u.uStreakWidth, o.streakWidth != null ? o.streakWidth : 1);
+    gl.uniform1f(u.uStreakLength, o.streakLength != null ? o.streakLength : 1);
+    gl.uniform1f(u.uGlow, o.glow != null ? o.glow : 1);
+    gl.uniform1f(u.uDensity, o.density != null ? o.density : 0.6);
+    gl.uniform1f(u.uTwinkle, o.twinkle != null ? o.twinkle : 1);
+    gl.uniform1f(u.uZoom, o.zoom != null ? o.zoom : 3);
+    gl.uniform1f(u.uBgGlow, o.backgroundGlow != null ? o.backgroundGlow : 0.5);
+    gl.uniform1f(u.uOpacity, o.opacity != null ? o.opacity : 1);
+    gl.uniform1f(u.uMouseEnabled, o.mouseInteraction !== false ? 1 : 0);
+    gl.uniform1f(u.uMouseStrength, o.mouseStrength != null ? o.mouseStrength : 0.5);
+    gl.uniform1f(u.uMouseRadius, o.mouseRadius != null ? o.mouseRadius : 1);
+    var damp = o.mouseDampening != null ? o.mouseDampening : 0.15;
+    var mouseCur = [0, 0], mouseTgt = [0, 0], lastT = 0, paused = false, running = false, rafId = 0, ro = null;
     function resize() {
-      W = canvas.width = canvas.offsetWidth;
-      H = canvas.height = canvas.offsetHeight;
-      init();
-    }
-    function init() {
-      var n = Math.min(90, Math.floor(W * H / 24000));
-      dots = [];
-      for (var i = 0; i < n; i++) {
-        dots.push({
-          x: Math.random() * W,
-          y: Math.random() * H,
-          vx: (Math.random() - 0.5) * 0.22,
-          vy: (Math.random() - 0.5) * 0.22,
-          r: Math.random() * 1.7 + 0.6
-        });
-      }
-    }
-    function draw() {
-      ctx.clearRect(0, 0, W, H);
-      var link = 110;
-      for (var i = 0; i < dots.length; i++) {
-        var p = dots[i];
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < -20) p.x = W + 20; else if (p.x > W + 20) p.x = -20;
-        if (p.y < -20) p.y = H + 20; else if (p.y > H + 20) p.y = -20;
-        for (var j = i + 1; j < dots.length; j++) {
-          var q = dots[j];
-          var dx = p.x - q.x, dy = p.y - q.y;
-          var d = Math.sqrt(dx * dx + dy * dy);
-          if (d < link) {
-            ctx.strokeStyle = 'rgba(255,150,120,' + ((1 - d / link) * 0.16).toFixed(3) + ')';
-            ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
-          }
-        }
-      }
-      for (var k = 0; k < dots.length; k++) {
-        var s = dots[k];
-        ctx.fillStyle = 'rgba(255,175,150,0.5)';
-        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
-      }
-    }
-    var paused = false;
-    function frame() {
-      if (siteEntered && !paused && !reduce) draw();
-      requestAnimationFrame(frame);
+      var coarse = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+      var area = Math.max(1, canvas.clientWidth * canvas.clientHeight);
+      var dpr = Math.min(window.devicePixelRatio || 1, Math.sqrt(1800000 / area), coarse ? 1.5 : 2);
+      var w = Math.max(2, Math.round(canvas.clientWidth * dpr));
+      var h = Math.max(2, Math.round(canvas.clientHeight * dpr));
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+      gl.viewport(0, 0, w, h);
+      gl.uniform3f(u.iResolution, w, h, 1);
     }
     resize();
-    if (reduce) draw(); else requestAnimationFrame(frame);
-    window.addEventListener('resize', resize);
-
-    /* 离屏时暂停粒子动画 */
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (entries) {
-        entries.forEach(function (en) {
-          paused = !en.isIntersecting;
-          if (!paused && !reduce) requestAnimationFrame(draw);
-        });
-      }, { threshold: 0 }).observe(canvas);
+    if (typeof ResizeObserver !== 'undefined') { ro = new ResizeObserver(resize); ro.observe(canvas); }
+    function onPointerMove(e) {
+      var rect = canvas.getBoundingClientRect();
+      var scale = rect.width ? canvas.width / rect.width : 1;
+      mouseTgt[0] = (e.clientX - rect.left) * scale;
+      mouseTgt[1] = (rect.height - (e.clientY - rect.top)) * scale;
     }
+    if (o.mouseInteraction !== false) canvas.addEventListener('pointermove', onPointerMove, { passive: true });
+    function step(t) {
+      rafId = requestAnimationFrame(step);
+      gl.uniform1f(u.iTime, t * 0.001);
+      if (damp > 0) {
+        if (!lastT) lastT = t;
+        var dt = (t - lastT) / 1000; lastT = t;
+        var f = Math.min(1, 1 - Math.exp(-dt / damp));
+        mouseCur[0] += (mouseTgt[0] - mouseCur[0]) * f;
+        mouseCur[1] += (mouseTgt[1] - mouseCur[1]) * f;
+      } else { lastT = t; mouseCur[0] = mouseTgt[0]; mouseCur[1] = mouseTgt[1]; }
+      gl.uniform2f(u.iMouse, mouseCur[0], mouseCur[1]);
+      if (!paused) gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    function setPaused(v) {
+      paused = !!v;
+      if (paused && running) { cancelAnimationFrame(rafId); running = false; }
+      else if (!paused && !running) { running = true; lastT = 0; rafId = requestAnimationFrame(step); }
+    }
+    running = true;
+    rafId = requestAnimationFrame(step);
+    return {
+      setPaused: setPaused,
+      drawOnce: function () { if (!paused) gl.drawArrays(gl.TRIANGLES, 0, 3); },
+      destroy: function () {
+        cancelAnimationFrame(rafId);
+        if (ro) ro.disconnect();
+        if (o.mouseInteraction !== false) canvas.removeEventListener('pointermove', onPointerMove);
+        var ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+      }
+    };
+  }
 
-
+  var lfCanvas = document.getElementById('lightfallCanvas');
+  var lightfall = null;
+  var lfInView = true, lfHidden = false, lfReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lfUpdate = function () {};
+  if (lfCanvas) {
+    lightfall = initLightfall(lfCanvas, {
+      colors: ['#ffd9c9', '#ff9d82', '#ffffff', '#ffb39c'],
+      backgroundColor: '#07090b',
+      speed: 0.5,
+      streakCount: 3,
+      streakWidth: 1.2,
+      streakLength: 1.4,
+      glow: 1.25,
+      density: 0.7,
+      twinkle: 1,
+      zoom: 3,
+      backgroundGlow: 0.8,
+      opacity: 0.95,
+      mouseInteraction: true,
+      mouseStrength: 0.5,
+      mouseRadius: 1,
+      mouseDampening: 0.15
+    });
+    if (lightfall) {
+      if (lfReduce) {
+        lightfall.setPaused(true);
+        lightfall.drawOnce();
+      } else {
+        lfUpdate = function () {
+          lightfall.setPaused(!siteEntered || lfHidden || !lfInView);
+        };
+        if ('IntersectionObserver' in window) {
+          new IntersectionObserver(function (entries) {
+            entries.forEach(function (en) { lfInView = en.isIntersecting; lfUpdate(); });
+          }, { threshold: 0 }).observe(lfCanvas);
+        }
+        document.addEventListener('visibilitychange', function () {
+          lfHidden = document.hidden;
+          lfUpdate();
+        });
+        lfUpdate();
+      }
+    }
   }
 })();
 </script>
