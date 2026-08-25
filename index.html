@@ -191,6 +191,64 @@ section[id]{scroll-margin-top:84px}
 .stat b i{font-style:normal;color:var(--accent)}
 .stat span{font-size:12px;color:var(--muted);margin-top:10px;display:block;letter-spacing:.06em}
 
+/* ===== ProfileCard 个人名片（仿 @react-bits/ProfileCard · 橙色调适配） ===== */
+.profile-card{--pointer-x:50%;--pointer-y:50%;--pointer-from-center:0;--pointer-from-top:.5;--pointer-from-left:.5;
+  --rotate-x:0deg;--rotate-y:0deg;--background-x:50%;--background-y:50%;--card-opacity:0;
+  --behind-glow-color:rgba(255,107,74,.5);--behind-glow-size:56%;--card-radius:24px;
+  position:relative;perspective:900px;transform:translate3d(0,0,.1px)}
+.profile-card .pc-behind{position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:var(--card-radius);
+  background:radial-gradient(circle at var(--pointer-x) var(--pointer-y),var(--behind-glow-color) 0%,transparent var(--behind-glow-size));
+  filter:blur(46px) saturate(1.15);opacity:calc(.85*var(--card-opacity));transition:opacity .2s ease}
+.profile-card:hover,.profile-card.active{--card-opacity:1}
+.pc-card-shell{position:relative;z-index:1}
+.pc-card{position:relative;width:100%;aspect-ratio:.72;border-radius:var(--card-radius);overflow:hidden;
+  background:#0a0c0e;box-shadow:0 26px 60px -20px rgba(0,0,0,.75);
+  transform:translateZ(0) rotateX(0) rotateY(0);transition:transform .55s var(--ease)}
+.profile-card:hover .pc-card,.profile-card.active .pc-card{transition:none;
+  transform:translateZ(0) rotateX(var(--rotate-y)) rotateY(var(--rotate-x))}
+.pc-card>*{position:absolute;inset:0;pointer-events:none}
+.pc-inside{z-index:0;background:
+  radial-gradient(120% 90% at 18% 0%,rgba(255,120,90,.22),transparent 52%),
+  linear-gradient(152deg,rgba(52,24,13,.92) 0%,rgba(12,9,8,.97) 74%)}
+.pc-avatar{z-index:1;overflow:hidden}
+.pc-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 22%;
+  filter:saturate(.92) contrast(1.04) brightness(.95)}
+.pc-avatar::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(7,9,11,.5) 0%,rgba(7,9,11,0) 26%,rgba(7,9,11,.2) 48%,rgba(7,9,11,.92) 100%)}
+.pc-glare{z-index:3;overflow:hidden;mix-blend-mode:overlay;opacity:.8;
+  background:radial-gradient(farthest-corner circle at var(--pointer-x) var(--pointer-y),hsl(18,100%,84%) 5%,hsla(10,70%,34%,.5) 88%)}
+.pc-content{z-index:4;display:flex;flex-direction:column;justify-content:space-between;padding:24px}
+.pc-details{position:relative;text-align:left}
+.pc-details h3{margin:0;font-size:clamp(22px,2.1vw,30px);font-weight:800;letter-spacing:.04em;line-height:1.15;
+  background:linear-gradient(180deg,#fff 30%,#ff9d82);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 2px 14px rgba(0,0,0,.5))}
+.pc-details p{margin:8px 0 0;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.26em;color:rgba(255,255,255,.66);
+  filter:drop-shadow(0 2px 10px rgba(0,0,0,.55))}
+.pc-user-info{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:rgba(255,255,255,.07);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:11px 13px;pointer-events:auto}
+.pc-user-details{display:flex;align-items:center;gap:12px;min-width:0}
+.pc-mini-avatar{width:42px;height:42px;border-radius:50%;overflow:hidden;border:1px solid rgba(255,255,255,.18);flex-shrink:0}
+.pc-mini-avatar img{width:100%;height:100%;object-fit:cover}
+.pc-user-text{display:flex;flex-direction:column;gap:5px;min-width:0}
+.pc-handle{font-size:13px;font-weight:600;color:#fff;line-height:1;white-space:nowrap}
+.pc-status{font-size:11px;color:rgba(255,255,255,.68);line-height:1;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.pc-status::before{content:"";width:7px;height:7px;border-radius:50%;background:#7ee0a3;box-shadow:0 0 10px rgba(126,224,163,.9)}
+.pc-contact-btn{pointer-events:auto;display:inline-flex;align-items:center;gap:8px;flex-shrink:0;
+  border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:11px 16px;
+  font-size:12px;font-weight:700;color:#fff;background:rgba(255,107,74,.16);cursor:pointer;
+  transition:all .25s var(--ease);white-space:nowrap}
+.pc-contact-btn:hover{background:var(--accent);border-color:var(--accent);transform:translateY(-1px);
+  box-shadow:0 8px 22px -8px rgba(255,107,74,.7)}
+@media (max-width:480px){
+  .pc-card{aspect-ratio:.78}
+  .pc-content{padding:18px}
+  .pc-user-info{padding:10px 12px;border-radius:12px}
+  .pc-mini-avatar{width:34px;height:34px}
+  .pc-contact-btn{padding:9px 13px;font-size:11px}
+  .pc-details h3{font-size:21px}
+}
+@media (hover:none),(pointer:coarse){.profile-card{transform:none}}
 /* 荣誉资质 */
 .honors-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
 .honor-card{position:relative;border:1px solid var(--line);background:var(--panel);
@@ -945,35 +1003,31 @@ html[data-theme="light"] .mobile-menu{background:rgba(242,241,238,.95)}
         <!-- 左侧：头像 / 人物卡 -->
         <div class="about-card reveal" style="--d:.08s">
             <span class="edge-light" aria-hidden="true"></span>
-          <div class="avatar">
-            <div class="avatar-bg"></div>
-            <svg class="avatar-hex" viewBox="0 0 300 300" fill="none" aria-hidden="true">
-              <defs>
-                <linearGradient id="mg" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stop-color="#ff6b4a"/>
-                  <stop offset="1" stop-color="#8f3a22"/>
-                </linearGradient>
-              </defs>
-              <g class="ring" stroke="rgba(255,107,74,.4)" stroke-width="1">
-                <polygon points="150,52 235,101 235,199 150,248 65,199 65,101"/>
-                <circle cx="150" cy="52" r="5" fill="rgba(255,107,74,.5)"/>
-                <circle cx="235" cy="101" r="4" fill="rgba(255,107,74,.35)"/>
-                <circle cx="235" cy="199" r="4" fill="rgba(255,107,74,.35)"/>
-                <circle cx="150" cy="248" r="6" fill="url(#mg)"/>
-                <circle cx="65" cy="199" r="4" fill="rgba(255,107,74,.35)"/>
-                <circle cx="65" cy="101" r="4" fill="rgba(255,107,74,.35)"/>
-              </g>
-              <g stroke="rgba(255,107,74,.14)" stroke-width="1">
-                <polygon points="150,112 202,138 202,190 150,216 98,190 98,138"/>
-              </g>
-            </svg>
-            <!-- AVATAR-IMG：有照片后，把上面的占位替换为下面这行 -->
-            <!-- <img src="assets/avatar.jpg" alt="李家驹" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" /> -->
-            <div class="avatar-initial">李</div>
-            <div class="avatar-tag mono"><span>PORTRAIT</span><span>HUNNU·CEE</span></div>
-          </div>
-          <div class="about-id mono">
-            <span>LI JIAJU</span><span>B.Eng. CANDIDATE</span>
+          <div class="profile-card" id="profileCard">
+            <div class="pc-behind" aria-hidden="true"></div>
+            <div class="pc-card-shell">
+              <section class="pc-card">
+                <div class="pc-inside" aria-hidden="true"></div>
+                <div class="pc-avatar" aria-hidden="true"><img src="assets/avatar-ljj.jpg" alt="李家驹" loading="lazy" decoding="async" /></div>
+                <div class="pc-glare" aria-hidden="true"></div>
+                <div class="pc-content">
+                  <div class="pc-details">
+                    <h3>LI JIAJU</h3>
+                    <p>CHEMICAL ENGINEERING · HUNNU</p>
+                  </div>
+                  <div class="pc-user-info">
+                    <div class="pc-user-details">
+                      <div class="pc-mini-avatar"><img src="assets/avatar-ljj.jpg" alt="李家驹" loading="lazy" decoding="async" /></div>
+                      <div class="pc-user-text">
+                        <div class="pc-handle">@j23iaju</div>
+                        <div class="pc-status">ONLINE · 在读</div>
+                      </div>
+                    </div>
+                    <a class="pc-contact-btn" href="#contact">联系我</a>
+                  </div>
+                </div>
+              </section>
+            </div>
           </div>
         </div>
 
@@ -1905,6 +1959,65 @@ document.documentElement.classList.add('js');
       .to(wipes, { attr: { width: function (i) { return wipesW[i]; } }, duration: drawDuration * 0.5, ease: wipeEase, stagger: stagger }, fillDelay);
     return tl;
   }
+  /* ===== ProfileCard 3D 倾斜（仿 @react-bits/ProfileCard · 仅桌面端） ===== */
+  (function () {
+    var wrap = document.getElementById('profileCard');
+    if (!wrap) return;
+    var shell = wrap.querySelector('.pc-card-shell');
+    if (!shell) return;
+    if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
+    var raf = null, running = false, lastTs = 0;
+    var curX = 0, curY = 0, tgtX = 0, tgtY = 0;
+    function setVars(x, y) {
+      var w = shell.clientWidth || 1, h = shell.clientHeight || 1;
+      var px = Math.max(0, Math.min(100, (100 / w) * x));
+      var py = Math.max(0, Math.min(100, (100 / h) * y));
+      var cx = px - 50, cy = py - 50;
+      wrap.style.setProperty('--pointer-x', px + '%');
+      wrap.style.setProperty('--pointer-y', py + '%');
+      wrap.style.setProperty('--pointer-from-center', Math.min(1, Math.hypot(py - 50, px - 50) / 50));
+      wrap.style.setProperty('--pointer-from-top', py / 100);
+      wrap.style.setProperty('--pointer-from-left', px / 100);
+      wrap.style.setProperty('--rotate-x', (-(cx / 5)).toFixed(3) + 'deg');
+      wrap.style.setProperty('--rotate-y', ((cy / 4)).toFixed(3) + 'deg');
+    }
+    function step(ts) {
+      if (!running) return;
+      if (!lastTs) lastTs = ts;
+      var dt = (ts - lastTs) / 1000;
+      lastTs = ts;
+      var k = 1 - Math.exp(-dt / 0.14);
+      curX += (tgtX - curX) * k;
+      curY += (tgtY - curY) * k;
+      setVars(curX, curY);
+      if (Math.abs(tgtX - curX) > 0.05 || Math.abs(tgtY - curY) > 0.05) {
+        raf = requestAnimationFrame(step);
+      } else { running = false; lastTs = 0; }
+    }
+    function start() { if (!running) { running = true; lastTs = 0; raf = requestAnimationFrame(step); } }
+    function onEnter() { shell.classList.add('active'); }
+    function onMove(e) {
+      var r = shell.getBoundingClientRect();
+      tgtX = e.clientX - r.left; tgtY = e.clientY - r.top;
+      start();
+    }
+    function onLeave() {
+      shell.classList.remove('active');
+      var r = shell.getBoundingClientRect();
+      tgtX = r.width / 2; tgtY = r.height / 2;
+      start();
+    }
+    shell.addEventListener('pointerenter', onEnter);
+    shell.addEventListener('pointermove', onMove);
+    shell.addEventListener('pointerleave', onLeave);
+    tgtX = shell.clientWidth - 70; tgtY = 60;
+    setVars(tgtX, tgtY);
+    setTimeout(function () {
+      var r = shell.getBoundingClientRect();
+      tgtX = r.width / 2; tgtY = r.height / 2;
+      start();
+    }, 400);
+  })();
   /* ===== GSAP Premium Motion ===== */
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!reduceMotion && window.gsap && window.ScrollTrigger) {
