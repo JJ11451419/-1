@@ -271,7 +271,7 @@ section[id]{scroll-margin-top:84px}
 .honor-card:hover .arr{opacity:1;transform:translateX(0)}
 .honor-body p{color:var(--muted);font-size:14.5px;margin-top:13px;line-height:1.95;max-width:640px}
 /* ===== 证书手风琴画廊（仿 @react-bits/AccordionGallery） ===== */
-.honors-gallery{position:relative}
+.honors-gallery{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:22px;padding:20px}
 .honors-hint{margin-top:24px;text-align:center;font-size:10.5px;letter-spacing:.26em;color:var(--faint)}
 .accordion-gallery{
   --ag-accent:#ff6b4a;--ag-overlay:#07090b;--ag-text:#fff;
@@ -280,17 +280,17 @@ section[id]{scroll-margin-top:84px}
   perspective:1400px;perspective-origin:50% 50%}
 .ag-panel{position:relative;flex:1 1 0;min-width:0;min-height:0;overflow:hidden;border-radius:var(--ag-radius);
   cursor:pointer;display:block;text-decoration:none;outline:none;transform-style:preserve-3d;
-  transform-origin:center center;background:#0a0713;box-shadow:0 10px 30px -18px rgba(0,0,0,.8);
+  transform-origin:center center;background:#1c222b;box-shadow:0 10px 30px -18px rgba(0,0,0,.8);
   will-change:flex-grow,transform;-webkit-tap-highlight-color:transparent;border:1px solid var(--line)}
 .ag-panel:focus-visible{box-shadow:0 0 0 2px var(--ag-accent),0 10px 30px -18px rgba(0,0,0,.8)}
 .ag-panel--active{border-color:rgba(255,107,74,.5)}
 .ag-panel__frame{position:absolute;inset:0;overflow:hidden;border-radius:inherit}
-.ag-panel__media{--ag-gray:1;--ag-dim:.35;position:absolute;top:50%;left:50%;width:var(--ag-media-size);height:100%;
+.ag-panel__media{--ag-gray:.45;--ag-dim:.06;position:absolute;top:50%;left:50%;width:var(--ag-media-size);height:100%;
   filter:grayscale(var(--ag-gray));will-change:transform,filter}
 .ag-panel__media img{width:100%;height:100%;object-fit:contain;display:block;user-select:none;
   -webkit-user-drag:none;padding:16px}
 .ag-panel__overlay{position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(180deg,transparent 45%,color-mix(in srgb,var(--ag-overlay) 78%,transparent) 100%),
+  background:linear-gradient(180deg,transparent 62%,color-mix(in srgb,var(--ag-overlay) 42%,transparent) 100%),
     color-mix(in srgb,var(--ag-overlay) calc(var(--ag-dim, .35) * 100%),transparent)}
 .ag-panel__label{position:absolute;left:20px;bottom:20px;right:20px;display:flex;align-items:center;gap:12px;
   pointer-events:none;z-index:2}
@@ -2190,6 +2190,7 @@ document.documentElement.classList.add('js');
     var ITEMS = [
       { image: 'assets/award-chemistry.jpg', label: '化学奥林匹克 · 一等奖', alt: '第39届中国化学奥林匹克一等奖' },
       { image: 'assets/cert-ai-trainer.jpg', label: '人工智能训练师', alt: '人工智能训练师职业技能证书' },
+      { image: 'assets/cert-ai-senior.jpg', label: '人工智能训练师 · 高级', alt: '人工智能训练师（高级）' },
       { image: 'assets/cert-bailian.jpg', label: '智能体应用开发', alt: '基于百炼平台构建智能体应用' },
       { image: 'assets/cert-artlab.jpg', label: 'AIGC 设计', alt: '基于 PAI ArtLab 的 AIGC 设计' },
       { image: 'assets/cert-finetune.jpg', label: '微调工程师', alt: '微调工程师认证' },
@@ -2260,8 +2261,8 @@ document.documentElement.classList.add('js');
         if (media) {
           var drift = Math.max(-1.5, Math.min(1.5, active - i));
           var shift = drift * parallax * mediaSize * 0.06;
-          var gray = grayscale ? (isA ? 0 : 1) : 0;
-          tl2.to(media, { xPercent: -50, yPercent: -50, x: isA ? 0 : shift, y: 0, '--ag-gray': gray, '--ag-dim': isA ? 0 : 0.35, duration: dur, ease: ease }, 0);
+          var gray = grayscale ? (isA ? 0 : 0.45) : 0;
+          tl2.to(media, { xPercent: -50, yPercent: -50, x: isA ? 0 : shift, y: 0, '--ag-gray': gray, '--ag-dim': isA ? 0 : 0.06, duration: dur, ease: ease }, 0);
         }
         var bar = bars[i], text = texts[i];
         if (isA) tl2.to([bar, text], { opacity: 1, x: 0, duration: dur, ease: ease, stagger: stagger }, 0);
