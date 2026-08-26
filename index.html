@@ -302,6 +302,50 @@ section[id]{scroll-margin-top:84px}
 .hobby-fact span{font-size:10.5px;color:var(--faint);display:block;margin-top:8px;letter-spacing:.08em}
 .hobby-sign{margin-top:18px;font-size:13px;color:var(--muted);display:flex;gap:10px;align-items:flex-start;line-height:1.8}
 .hobby-sign b{color:var(--text);font-weight:600;white-space:nowrap}
+/* ===== 旅行 · 飞机动画卡片 ===== */
+.tr-card{grid-column:1/-1;cursor:pointer}
+.tr-top{display:grid;grid-template-columns:minmax(280px,360px) 1fr}
+.tr-sky{position:relative;overflow:hidden;min-height:300px;
+  background:radial-gradient(120% 90% at 72% 8%,rgba(255,107,74,.14),transparent 55%),
+  linear-gradient(175deg,#0a1016 0%,#0d1822 58%,#0a0e12 100%)}
+.tr-route{position:absolute;inset:0;width:100%;height:100%}
+.tr-route path{fill:none;stroke:rgba(255,140,110,.4);stroke-width:1.2;stroke-dasharray:5 7;animation:trDash 16s linear infinite}
+@keyframes trDash{to{stroke-dashoffset:-240}}
+.tr-plane{position:absolute;left:0;top:0;width:36px;height:36px;color:#ffd9c9;z-index:3;
+  filter:drop-shadow(0 0 14px rgba(255,107,74,.85)) drop-shadow(0 0 4px rgba(255,190,160,.9));will-change:transform}
+.tr-plane svg{width:100%;height:100%;display:block}
+.tr-city{position:absolute;left:24px;bottom:20px;z-index:2;pointer-events:none}
+.tr-year{font-family:var(--font-mono);font-size:clamp(42px,4.4vw,66px);font-weight:700;line-height:1;color:transparent;
+  -webkit-text-stroke:1px rgba(255,120,95,.55);letter-spacing:.02em}
+.tr-name{font-size:clamp(20px,2vw,28px);font-weight:700;color:#fff;margin-top:10px;letter-spacing:.05em}
+.tr-note{font-size:12.5px;color:var(--muted);margin-top:6px;letter-spacing:.12em}
+.tr-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:22px;align-content:center}
+.tr-shot{position:relative;overflow:hidden;border-radius:14px;aspect-ratio:4/3;background:#0b0f12;border:1px solid var(--line)}
+.tr-shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease);opacity:1}
+.tr-shot figcaption{position:absolute;left:12px;bottom:10px;z-index:2;font-family:var(--font-mono);
+  font-size:9.5px;letter-spacing:.2em;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.tr-card:hover .tr-shot img{transform:scale(1.05)}
+.tr-foot{display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:18px 22px;border-top:1px solid var(--line);background:rgba(255,255,255,.015)}
+.tr-tip{font-size:12.5px;color:var(--faint);margin-top:4px;letter-spacing:.04em}
+.tr-btn{display:inline-flex;align-items:center;gap:10px;flex-shrink:0;cursor:pointer;
+  background:var(--accent);color:#1d0b06;border:none;border-radius:10px;padding:13px 20px;
+  font-size:12px;font-weight:700;letter-spacing:.16em;transition:all .3s var(--ease)}
+.tr-btn:hover{background:var(--accent-strong);transform:translateY(-2px);box-shadow:0 10px 26px -10px rgba(255,107,74,.75)}
+.tr-btn:active{transform:translateY(0)}
+.tr-btn .arr{font-size:14px}
+@media (max-width:960px){
+  .tr-top{grid-template-columns:1fr}
+  .tr-sky{min-height:230px}
+  .tr-gallery{padding:18px;gap:10px}
+  .tr-foot{flex-direction:column;align-items:flex-start}
+}
+@media (max-width:480px){
+  .tr-sky{min-height:200px}
+  .tr-gallery{grid-template-columns:repeat(3,1fr);gap:8px;padding:14px}
+  .tr-foot{padding:16px}
+  .tr-btn{width:100%;justify-content:center}
+}
 
 /* 精选项目 */
 .proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
@@ -1626,6 +1670,36 @@ html[data-theme="light"] .mobile-menu{background:rgba(242,241,238,.95)}
 
           </div>
         </article>
+        <!-- 旅行 -->
+        <article class="hobby-card tr-card reveal" id="trCard" style="--d:.12s">
+          <div class="tr-top">
+            <div class="tr-sky">
+              <svg class="tr-route" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M2 34 Q50 -12 98 30" />
+              </svg>
+              <div class="tr-plane" id="trPlane" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+              </div>
+              <div class="tr-city">
+                <span class="tr-year" id="trYear">2016</span>
+                <h3 class="tr-name" id="trName">桂林 · GUILIN</h3>
+                <p class="tr-note" id="trNote">漓江山水 · 山水甲天下</p>
+              </div>
+            </div>
+            <div class="tr-gallery">
+              <figure class="tr-shot"><img src="assets/travel/guilin-1.jpg" alt="漓江" loading="lazy" decoding="async" /><figcaption>漓江</figcaption></figure>
+              <figure class="tr-shot"><img src="assets/travel/guilin-2.jpg" alt="象鼻山" loading="lazy" decoding="async" /><figcaption>象鼻山</figcaption></figure>
+              <figure class="tr-shot"><img src="assets/travel/guilin-3.jpg" alt="阳朔" loading="lazy" decoding="async" /><figcaption>阳朔</figcaption></figure>
+            </div>
+          </div>
+          <div class="tr-foot">
+            <div>
+              <p class="hobby-kicker mono">TRAVEL · 旅行足迹</p>
+              <p class="tr-tip">2016 桂林 → 2018 江苏 → 2019 南京 → 2021 重庆 → 2023 河南 → 2026 长沙 · 点击启程</p>
+            </div>
+            <button class="tr-btn mono" id="trNext" type="button">下一站 NEXT <span class="arr">→</span></button>
+          </div>
+        </article>
       </div>
     </div>
   </section>
@@ -2019,6 +2093,84 @@ document.documentElement.classList.add('js');
       tgtX = r.width / 2; tgtY = r.height / 2;
       start();
     }, 400);
+  })();
+  /* ===== 旅行足迹 · 飞机动画（点击切换目的地） ===== */
+  (function () {
+    var trStops = [
+      { year: '2016', zh: '桂林', en: 'GUILIN', note: '漓江山水 · 山水甲天下', photos: ['guilin-1.jpg', 'guilin-2.jpg', 'guilin-3.jpg'], caps: ['漓江', '象鼻山', '阳朔'] },
+      { year: '2018', zh: '江苏', en: 'JIANGSU', note: '园林水乡 · 江南风韵', photos: ['jiangsu-1.jpg', 'jiangsu-2.jpg', 'jiangsu-3.jpg'], caps: ['苏州拙政园', '周庄水乡', '扬州瘦西湖'] },
+      { year: '2019', zh: '南京', en: 'NANJING', note: '六朝古都 · 金陵旧梦', photos: ['nanjing-1.jpg', 'nanjing-2.jpg', 'nanjing-3.jpg'], caps: ['中山陵', '夫子庙', '明孝陵'] },
+      { year: '2021', zh: '重庆', en: 'CHONGQING', note: '山城魔幻 · 8D 都市', photos: ['chongqing-1.jpg', 'chongqing-2.jpg', 'chongqing-3.jpg'], caps: ['洪崖洞', '解放碑', '长江索道'] },
+      { year: '2023', zh: '河南', en: 'HENAN', note: '中原大地 · 千年文明', photos: ['henan-1.jpg', 'henan-2.jpg', 'henan-3.jpg'], caps: ['龙门石窟', '少林寺', '白马寺'] },
+      { year: '2026', zh: '长沙', en: 'CHANGSHA', note: '星城烟火 · 湘江之畔', photos: ['changsha-1.jpg', 'changsha-2.jpg', 'changsha-3.jpg'], caps: ['岳麓书院', '橘子洲', '湘江天际线'] }
+    ];
+    var trCard = document.getElementById('trCard');
+    var trNext = document.getElementById('trNext');
+    var trYear = document.getElementById('trYear');
+    var trName = document.getElementById('trName');
+    var trNote = document.getElementById('trNote');
+    var trPlane = document.getElementById('trPlane');
+    if (!trCard || !trNext || !trYear || !trName || !trNote) return;
+    var trIdx = 0, trBusy = false, trFly = null;
+    function applyStop(s) {
+      trYear.textContent = s.year;
+      trName.textContent = s.zh + ' · ' + s.en;
+      trNote.textContent = s.note;
+      var shots = trCard.querySelectorAll('.tr-shot');
+      shots.forEach(function (fig, i) {
+        var img = fig.querySelector('img');
+        var cap = fig.querySelector('figcaption');
+        if (!img) return;
+        if (window.gsap) {
+          gsap.to(img, { opacity: 0, duration: 0.22, onComplete: function () {
+            img.src = 'assets/travel/' + s.photos[i];
+            cap.textContent = s.caps[i];
+            img.onload = function () { gsap.to(img, { opacity: 1, duration: 0.55, ease: 'power2.out' }); };
+          } });
+        } else {
+          img.src = 'assets/travel/' + s.photos[i];
+          cap.textContent = s.caps[i];
+          img.style.opacity = 1;
+        }
+      });
+    }
+    function flyPlane() {
+      if (!window.gsap || !trPlane) { applyStop(trStops[trIdx]); trBusy = false; return; }
+      if (trFly) trFly.kill();
+      var sky = trCard.querySelector('.tr-sky');
+      var r = sky.getBoundingClientRect();
+      var x0 = -26, x1 = r.width - 12;
+      var y0 = r.height * 0.84, arc = -r.height * 0.6;
+      var obj = { t: 0 };
+      var swapped = false;
+      trFly = gsap.to(obj, {
+        t: 1, duration: 1.7, ease: 'power2.inOut',
+        onUpdate: function () {
+          var t = obj.t;
+          var x = x0 + (x1 - x0) * t;
+          var y = y0 + arc * Math.sin(Math.PI * t);
+          var angle = Math.atan2(arc * Math.PI * Math.cos(Math.PI * t), x1 - x0) * 180 / Math.PI;
+          gsap.set(trPlane, { x: x, y: y, rotation: angle });
+          if (!swapped && t >= 0.42) { swapped = true; applyStop(trStops[trIdx]); }
+        },
+        onComplete: function () { trBusy = false; }
+      });
+    }
+    function go() {
+      if (trBusy) return;
+      trBusy = true;
+      trIdx = (trIdx + 1) % trStops.length;
+      flyPlane();
+    }
+    trNext.addEventListener('click', go);
+    trCard.addEventListener('click', function (e) {
+      if (e.target && e.target.closest && e.target.closest('button')) return;
+      go();
+    });
+    if (trPlane && window.gsap) {
+      var r = trCard.querySelector('.tr-sky').getBoundingClientRect();
+      gsap.set(trPlane, { x: -26, y: r.height * 0.84, rotation: 0 });
+    }
   })();
   /* ===== GSAP Premium Motion ===== */
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
