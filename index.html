@@ -1865,6 +1865,8 @@ document.documentElement.classList.add('js');
     bgMusic.volume = 0.35;
     function startBg() {
       if (musicDenied || !bgMusic.paused) return;
+      var hs = document.getElementById('hobbySong');
+      if (hs && !hs.paused) return;
       bgMusic.play().then(function () { musicToggle.classList.add('playing'); }).catch(function () {});
     }
     function stopBg() {
