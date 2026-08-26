@@ -1907,6 +1907,9 @@ document.documentElement.classList.add('js');
       } else {
         hobbySong.pause();
         hobbyPlay.classList.remove('playing');
+        if (bgMusic && !musicDenied && bgMusic.paused) {
+          bgMusic.play().then(function () { if (musicToggle) musicToggle.classList.add('playing'); }).catch(function () {});
+        }
       }
     });
     hobbySong.addEventListener('timeupdate', function () {
@@ -1919,7 +1922,14 @@ document.documentElement.classList.add('js');
         hobbyTime.textContent = cm + ':' + (cs < 10 ? '0' + cs : cs) + ' / ' + dm + ':' + (ds < 10 ? '0' + ds : ds);
       }
     });
-    hobbySong.addEventListener('ended', function () { hobbyPlay.classList.remove('playing'); hobbyBar.style.width = '0%'; hobbyTime.textContent = '0:00 / 4:25'; });
+    hobbySong.addEventListener('ended', function () {
+      hobbyPlay.classList.remove('playing');
+      hobbyBar.style.width = '0%';
+      hobbyTime.textContent = '0:00 / 4:25';
+      if (bgMusic && !musicDenied && bgMusic.paused) {
+        bgMusic.play().then(function () { if (musicToggle) musicToggle.classList.add('playing'); }).catch(function () {});
+      }
+    });
     if (hobbyProgress) {
       hobbyProgress.addEventListener('click', function (e) {
         var r = hobbyProgress.getBoundingClientRect();
