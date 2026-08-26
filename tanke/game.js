@@ -465,6 +465,7 @@ const overMenuBtn = document.getElementById('overMenuBtn');
 const pauseMenuBtn = document.getElementById('pauseMenuBtn');
 const victoryMenuBtn = document.getElementById('victoryMenuBtn');
 const victorySurvivalBtn = document.getElementById('victorySurvivalBtn');
+const unlockAllBtn = document.getElementById('unlockAllBtn');
 
 const introTitle = document.getElementById('introTitle');
 const introName = document.getElementById('introName');
@@ -1728,6 +1729,29 @@ function showMainMenu() {
         survivalBtn.textContent = '生 存 无 尽 (通关解锁)';
         survivalBtn.style.opacity = '0.6';
     }
+    // 一键解锁按钮状态
+    refreshUnlockBtn();
+}
+function refreshUnlockBtn() {
+    if (!unlockAllBtn) return;
+    const allUnlocked = unlockedLevel >= 13 && isSurvivalUnlocked();
+    if (allUnlocked) {
+        unlockAllBtn.textContent = '✓ 已 全 部 解 锁';
+        unlockAllBtn.style.opacity = '0.55';
+    } else {
+        unlockAllBtn.textContent = '一 键 解 锁 全 部';
+        unlockAllBtn.style.opacity = '1';
+    }
+}
+function unlockAll() {
+    unlockedLevel = 13;
+    saveUnlockedLevel(unlockedLevel);
+    setSurvivalUnlocked();
+    isSurvivalUnlockedCache = true;
+    survivalBtn.textContent = '生 存 无 尽 模 式';
+    survivalBtn.style.opacity = '1';
+    refreshUnlockBtn();
+    alert('已解锁全部 12 关 + 生存无尽模式！');
 }
 function showLevelSelect() {
     hideAllOverlays();
@@ -2018,6 +2042,7 @@ pauseMenuBtn.addEventListener('click', showMainMenu);
 victoryMenuBtn.addEventListener('click', showMainMenu);
 victorySurvivalBtn.addEventListener('click', startSurvival);
 survivalBtn.addEventListener('click', () => { if (isSurvivalUnlocked()) startSurvival(); });
+unlockAllBtn.addEventListener('click', unlockAll);
 
 /* ============================================================
  *  移动端触屏控制 & 响应式适配
@@ -2236,7 +2261,7 @@ survivalBtn.addEventListener('click', () => { if (isSurvivalUnlocked()) startSur
     }
     const btnIds = ['campaignBtn','survivalBtn','howToBtn','backToMenuBtn','introBackBtn',
         'introStartBtn','howToBackBtn','restartBtn','overMenuBtn','pauseMenuBtn',
-        'victoryMenuBtn','victorySurvivalBtn'];
+        'victoryMenuBtn','victorySurvivalBtn','unlockAllBtn'];
     for (const id of btnIds) addTouchendFallback(document.getElementById(id));
 })();
 

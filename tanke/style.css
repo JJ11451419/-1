@@ -188,6 +188,18 @@ body {
     width: 280px;
     padding: 14px 24px;
 }
+.unlock-btn {
+    background: linear-gradient(180deg, #6a8aff 0%, #3a4af0 100%);
+    color: #fff;
+    border-color: #aab8ff;
+    box-shadow: 0 4px 14px rgba(60, 80, 220, 0.5);
+    font-size: 18px;
+    padding: 10px 24px;
+}
+.unlock-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(60, 80, 220, 0.5);
+}
 .survival-highscore {
     font-size: 14px;
     color: #7ab8ff;
