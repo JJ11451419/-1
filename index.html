@@ -270,6 +270,42 @@ section[id]{scroll-margin-top:84px}
   opacity:0;transform:translateX(-10px);transition:all .4s var(--ease)}
 .honor-card:hover .arr{opacity:1;transform:translateX(0)}
 .honor-body p{color:var(--muted);font-size:14.5px;margin-top:13px;line-height:1.95;max-width:640px}
+/* ===== 证书手风琴画廊（仿 @react-bits/AccordionGallery） ===== */
+.honors-gallery{position:relative}
+.honors-hint{margin-top:24px;text-align:center;font-size:10.5px;letter-spacing:.26em;color:var(--faint)}
+.accordion-gallery{
+  --ag-accent:#ff6b4a;--ag-overlay:#07090b;--ag-text:#fff;
+  --ag-gap:10px;--ag-radius:16px;--ag-media-size:320px;
+  display:flex;flex-direction:row;gap:var(--ag-gap);width:100%;max-width:100%;height:500px;
+  perspective:1400px;perspective-origin:50% 50%}
+.ag-panel{position:relative;flex:1 1 0;min-width:0;min-height:0;overflow:hidden;border-radius:var(--ag-radius);
+  cursor:pointer;display:block;text-decoration:none;outline:none;transform-style:preserve-3d;
+  transform-origin:center center;background:#0a0713;box-shadow:0 10px 30px -18px rgba(0,0,0,.8);
+  will-change:flex-grow,transform;-webkit-tap-highlight-color:transparent;border:1px solid var(--line)}
+.ag-panel:focus-visible{box-shadow:0 0 0 2px var(--ag-accent),0 10px 30px -18px rgba(0,0,0,.8)}
+.ag-panel--active{border-color:rgba(255,107,74,.5)}
+.ag-panel__frame{position:absolute;inset:0;overflow:hidden;border-radius:inherit}
+.ag-panel__media{--ag-gray:1;--ag-dim:.35;position:absolute;top:50%;left:50%;width:var(--ag-media-size);height:100%;
+  filter:grayscale(var(--ag-gray));will-change:transform,filter}
+.ag-panel__media img{width:100%;height:100%;object-fit:contain;display:block;user-select:none;
+  -webkit-user-drag:none;padding:16px}
+.ag-panel__overlay{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 45%,color-mix(in srgb,var(--ag-overlay) 78%,transparent) 100%),
+    color-mix(in srgb,var(--ag-overlay) calc(var(--ag-dim, .35) * 100%),transparent)}
+.ag-panel__label{position:absolute;left:20px;bottom:20px;right:20px;display:flex;align-items:center;gap:12px;
+  pointer-events:none;z-index:2}
+.ag-panel__bar{flex:0 0 auto;width:3px;height:26px;border-radius:3px;background:var(--ag-accent);opacity:0;
+  box-shadow:0 0 12px color-mix(in srgb,var(--ag-accent) 60%,transparent)}
+.ag-panel__text{color:var(--ag-text);font-weight:600;font-size:clamp(1rem,1.4vw,1.4rem);letter-spacing:.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;text-shadow:0 2px 14px rgba(0,0,0,.55)}
+@media (max-width:720px){
+  .accordion-gallery{flex-direction:column;height:auto !important;gap:12px;perspective:none}
+  .ag-panel{flex:1 1 auto !important;min-height:0;transform:none !important;height:auto;aspect-ratio:3/2}
+  .ag-panel__media{width:100%;height:100%;top:0;left:0;transform:none !important}
+  .ag-panel__media img{padding:10px}
+  .ag-panel__label{opacity:1 !important}
+  .ag-panel__bar,.ag-panel__text{opacity:1 !important;transform:none !important}
+}
 
 /* 兴趣爱好 */
 .hobby-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
@@ -1141,36 +1177,11 @@ html[data-theme="light"] .mobile-menu{background:rgba(242,241,238,.95)}
         <h2 class="sec-title">荣誉资质</h2>
         <div class="sec-rule"></div>
       </header>
-<div class="honors-grid">
-        <article class="honor-card reveal">
-          <div class="honor-cover">
-            <span class="honor-tag mono">AWARD / CCHO</span>
-            <div class="honor-img"><img src="assets/award-chemistry.jpg" alt="第39届中国化学奥林匹克一等奖" loading="lazy" decoding="async" /></div>
-          </div>
-          <div class="honor-body">
-            <h3>第39届中国化学奥林匹克 · 一等奖 <span class="arr">→</span></h3>
-            <p>在第39届中国化学奥林匹克竞赛中荣获一等奖，是对扎实化学功底与长期系统训练的最好证明。</p>
-            <div class="proj-meta">
-              <span class="chip">化学竞赛</span><span class="chip">一等奖</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="honor-card reveal" style="--d:.08s">
-          <div class="honor-cover">
-            <span class="honor-tag mono">SKILL / AI</span>
-            <div class="honor-img"><img src="assets/cert-ai-trainer.jpg" alt="人工智能训练师职业技能证书" loading="lazy" decoding="async" /></div>
-          </div>
-          <div class="honor-body">
-            <h3>人工智能训练师 · 职业技能证书 <span class="arr">→</span></h3>
-            <p>通过人工智能训练师职业技能考核，具备数据标注、模型训练与效果评估的基础实践能力，体现跨学科学习的态度。</p>
-            <div class="proj-meta">
-              <span class="chip">人工智能</span><span class="chip">技能认证</span>
-            </div>
-          </div>
-        </article>
+      <div class="honors-gallery">
+        <div class="accordion-gallery" id="honorGallery" role="list" aria-label="荣誉证书画廊"></div>
+        <p class="honors-hint mono">悬停 / 点击展开 · 左右方向键切换 · HOVER / TAP TO EXPAND</p>
       </div>
-    </div>
+      </div>
   </section>
 
   <!-- ============ 04 精选项目 ============ -->
@@ -2171,6 +2182,106 @@ document.documentElement.classList.add('js');
       var r = trCard.querySelector('.tr-sky').getBoundingClientRect();
       gsap.set(trPlane, { x: -26, y: r.height * 0.84, rotation: 0 });
     }
+  })();
+  /* ===== 证书手风琴画廊（仿 @react-bits/AccordionGallery · 原生 + GSAP） ===== */
+  (function () {
+    var root = document.getElementById('honorGallery');
+    if (!root) return;
+    var ITEMS = [
+      { image: 'assets/award-chemistry.jpg', label: '化学奥林匹克 · 一等奖', alt: '第39届中国化学奥林匹克一等奖' },
+      { image: 'assets/cert-ai-trainer.jpg', label: '人工智能训练师', alt: '人工智能训练师职业技能证书' },
+      { image: 'assets/cert-bailian.jpg', label: '智能体应用开发', alt: '基于百炼平台构建智能体应用' },
+      { image: 'assets/cert-artlab.jpg', label: 'AIGC 设计', alt: '基于 PAI ArtLab 的 AIGC 设计' },
+      { image: 'assets/cert-finetune.jpg', label: '微调工程师', alt: '微调工程师认证' },
+      { image: 'assets/cert-agent.jpg', label: '智能体工程师', alt: '智能体工程师认证' },
+      { image: 'assets/cert-prompt.jpg', label: 'Prompt 工程师', alt: 'Prompt 工程师认证' },
+      { image: 'assets/cert-springai.jpg', label: 'Spring AI 开发', alt: 'Spring AI 应用开发（入门）' },
+      { image: 'assets/cert-vision.jpg', label: 'VISION 人工智能', alt: 'VISION 人工智能设计（入门）' }
+    ];
+    var count = ITEMS.length;
+    var active = 0;
+    var expandRatio = 0.52, duration = 0.6, ease = 'power3.out', parallax = 0.3, tilt = 8, stagger = 0.06, grayscale = true;
+    var panels = [], medias = [], bars = [], texts = [];
+    var tl = null, mediaSize = 320;
+    var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function isMobile() { return window.matchMedia('(max-width:720px)').matches; }
+
+    ITEMS.forEach(function (item, i) {
+      var panel = document.createElement('div');
+      panel.className = 'ag-panel' + (i === active ? ' ag-panel--active' : '');
+      panel.setAttribute('role', 'listitem');
+      panel.setAttribute('tabindex', '0');
+      panel.setAttribute('aria-label', item.label);
+      var frame = document.createElement('span'); frame.className = 'ag-panel__frame';
+      var media = document.createElement('span'); media.className = 'ag-panel__media';
+      var img = document.createElement('img'); img.src = item.image; img.alt = item.alt || item.label; img.loading = 'lazy'; img.decoding = 'async'; img.draggable = false;
+      media.appendChild(img); frame.appendChild(media);
+      var overlay = document.createElement('span'); overlay.className = 'ag-panel__overlay'; overlay.setAttribute('aria-hidden', 'true');
+      frame.appendChild(overlay); panel.appendChild(frame);
+      var label = document.createElement('span'); label.className = 'ag-panel__label'; label.setAttribute('aria-hidden', 'true');
+      var bar = document.createElement('span'); bar.className = 'ag-panel__bar';
+      var text = document.createElement('span'); text.className = 'ag-panel__text'; text.textContent = item.label;
+      label.appendChild(bar); label.appendChild(text); panel.appendChild(label);
+      root.appendChild(panel);
+      panels.push(panel); medias.push(media); bars.push(bar); texts.push(text);
+      panel.addEventListener('mouseenter', function () { setActive(i); });
+      panel.addEventListener('click', function (e) { if (i !== active) { e.preventDefault(); setActive(i); } });
+      panel.addEventListener('focus', function () { setActive(i); });
+      panel.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); setActive((i + 1) % count); }
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); setActive((i - 1 + count) % count); }
+      });
+    });
+
+    function setActive(i) {
+      if (i === active) return;
+      active = i;
+      panels.forEach(function (p, k) { p.classList.toggle('ag-panel--active', k === active); });
+      applyLayout(true);
+    }
+
+    function applyLayout(animate) {
+      if (!window.gsap || isMobile() || prefersReduced) {
+        var r = Math.min(Math.max(expandRatio, 0.2), 0.9);
+        var grow = count > 1 ? (r * (count - 1)) / (1 - r) : 1;
+        panels.forEach(function (p, i) { p.style.flexGrow = i === active ? grow : 1; });
+        return;
+      }
+      var r = Math.min(Math.max(expandRatio, 0.2), 0.9);
+      var grow = count > 1 ? (r * (count - 1)) / (1 - r) : 1;
+      if (tl) tl.kill();
+      var dur = animate ? duration : 0;
+      var tl2 = gsap.timeline();
+      panels.forEach(function (panel, i) {
+        var isA = i === active;
+        var rot = isA ? 0 : (i < active ? tilt : -tilt);
+        tl2.to(panel, { flexGrow: isA ? grow : 1, rotateY: rot, duration: dur, ease: ease }, 0);
+        var media = medias[i];
+        if (media) {
+          var drift = Math.max(-1.5, Math.min(1.5, active - i));
+          var shift = drift * parallax * mediaSize * 0.06;
+          var gray = grayscale ? (isA ? 0 : 1) : 0;
+          tl2.to(media, { xPercent: -50, yPercent: -50, x: isA ? 0 : shift, y: 0, '--ag-gray': gray, '--ag-dim': isA ? 0 : 0.35, duration: dur, ease: ease }, 0);
+        }
+        var bar = bars[i], text = texts[i];
+        if (isA) tl2.to([bar, text], { opacity: 1, x: 0, duration: dur, ease: ease, stagger: stagger }, 0);
+        else tl2.to([bar, text], { opacity: 0, x: -14, duration: dur * 0.6, ease: ease }, 0);
+      });
+      tl = tl2;
+    }
+
+    function measure() {
+      var rect = root.getBoundingClientRect();
+      var total = rect.width;
+      var usable = Math.max(total - 10 * (count - 1), 120);
+      var size = Math.max(140, usable * Math.min(Math.max(expandRatio, 0.2), 0.9) * 1.22);
+      mediaSize = size;
+      root.style.setProperty('--ag-media-size', size + 'px');
+      applyLayout(false);
+    }
+
+    measure();
+    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(measure).observe(root);
   })();
   /* ===== GSAP Premium Motion ===== */
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
