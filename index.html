@@ -428,6 +428,28 @@ section[id]{scroll-margin-top:84px}
 .str-card h3{font-size:18px;color:#fff;letter-spacing:.04em}
 .str-card p{font-size:14px;color:var(--muted);margin-top:12px;line-height:1.9}
 
+/* 我能为你做什么 */
+.sv-intro{font-size:clamp(15px,1.25vw,18px);color:var(--muted);line-height:2.05;max-width:780px;margin-bottom:52px}
+.sv-intro em{font-style:normal;color:var(--accent)}
+.sv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.sv-card{position:relative;border:1px solid var(--line);background:var(--panel);padding:38px 34px;
+  overflow:hidden;transition:border-color .4s,transform .4s var(--ease)}
+.sv-card:hover{border-color:rgba(255,107,74,.35);transform:translateY(-6px)}
+.sv-icon{width:52px;height:52px;border:1px solid var(--line);border-radius:14px;display:flex;
+  align-items:center;justify-content:center;color:var(--accent);background:var(--accent-dim);margin-bottom:26px}
+.sv-icon svg{width:26px;height:26px}
+.sv-kicker{font-family:var(--font-mono);font-size:10px;letter-spacing:.3em;color:var(--accent)}
+.sv-card h3{font-size:20px;color:#fff;margin-top:12px;letter-spacing:.04em}
+.sv-card p{font-size:14px;color:var(--muted);margin-top:14px;line-height:1.95}
+.sv-tags{display:flex;gap:8px;margin-top:22px;flex-wrap:wrap}
+.sv-strip{margin-top:44px;border:1px solid var(--line);border-radius:14px;
+  background:linear-gradient(120deg,rgba(255,107,74,.08),rgba(255,255,255,.02));
+  padding:22px 28px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.sv-strip b{font-family:var(--font-mono);font-size:13px;letter-spacing:.22em;color:#fff;white-space:nowrap}
+.sv-strip b i{font-style:normal;color:var(--accent)}
+.sv-strip span{font-size:14px;color:var(--muted);letter-spacing:.04em}
+@media (max-width:960px){.sv-grid{grid-template-columns:1fr;gap:18px}.sv-intro{margin-bottom:36px}}
+
 /* 结尾联系方式 */
 .contact{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;
   border-top:1px solid var(--line)}
@@ -1715,6 +1737,51 @@ html[data-theme="light"] .mobile-menu{background:rgba(242,241,238,.95)}
     </div>
   </section>
 
+  <!-- ============ 06 我能为你做什么 ============ -->
+  <section class="sec services" id="services">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="sec-index mono">06 / SERVICES</p>
+        <h2 class="sec-title">我能为你做什么</h2>
+        <div class="sec-rule"></div>
+      </header>
+      <p class="sv-intro">我会 <em>AI 工具</em> 与 <em>PPT</em> —— 用 AI 帮团队做项目调研、写商业计划书、做路演材料，把每一个想法都打磨成看得见的专业成果。</p>
+      <div class="sv-grid">
+        <article class="sv-card">
+          <div class="sv-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/><path d="M8 13l2-2 2 1 3-3"/></svg>
+          </div>
+          <p class="sv-kicker mono">RESEARCH · 调研</p>
+          <h3>项目调研</h3>
+          <p>用 AI 快速收集行业信息、竞品动态与用户需求，把零散资料整理成清晰的调研结论与洞察报告，为团队决策提供依据。</p>
+          <div class="sv-tags"><span class="chip">行业分析</span><span class="chip">竞品调研</span><span class="chip">需求洞察</span></div>
+        </article>
+        <article class="sv-card">
+          <div class="sv-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 14l3-3 2 2 3-3"/></svg>
+          </div>
+          <p class="sv-kicker mono">PLAN · 商业计划书</p>
+          <h3>商业计划书</h3>
+          <p>借助 AI 搭建商业模式、市场规模测算与财务预估，产出结构完整、逻辑清晰的商业计划书，让项目站得住脚。</p>
+          <div class="sv-tags"><span class="chip">商业模式</span><span class="chip">市场分析</span><span class="chip">财务测算</span></div>
+        </article>
+        <article class="sv-card">
+          <div class="sv-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4"/><path d="M8 20h8"/><path d="M7 12l2-2 2 1 3-3"/></svg>
+          </div>
+          <p class="sv-kicker mono">DECK · 路演材料</p>
+          <h3>路演材料</h3>
+          <p>熟练使用 PPT 与 AI 排版，把复杂内容转化为有视觉冲击力的路演演示，在有限时间里讲清楚项目价值，打动评委与投资人。</p>
+          <div class="sv-tags"><span class="chip">PPT 设计</span><span class="chip">信息可视化</span><span class="chip">路演答辩</span></div>
+        </article>
+      </div>
+      <div class="sv-strip">
+        <b>AI TOOLS <i>+</i> PPT</b>
+        <span>会 AI 工具 &amp; PPT · 让团队的每一个想法，都更专业地呈现</span>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <!-- ============ 07 结尾 · 整屏收尾 ============ -->
@@ -1722,7 +1789,7 @@ html[data-theme="light"] .mobile-menu{background:rgba(242,241,238,.95)}
   <div class="contact-glow"></div>
   <div class="contact-ghost mono" aria-hidden="true">CONTACT</div>
   <div class="wrap contact-inner">
-    <p class="sec-index mono contact-kicker reveal">06 / CONTACT</p>
+    <p class="sec-index mono contact-kicker reveal">07 / CONTACT</p>
     <h2 class="contact-title reveal" style="--d:.06s">一起，探索化学的<br /><span>更多可能。</span></h2>
     <p class="contact-sub reveal" style="--d:.12s">无论是实验、代码还是创意，欢迎随时与我聊聊。</p>
     <div class="contact-ways reveal" style="--d:.2s">
@@ -2394,6 +2461,7 @@ document.documentElement.classList.add('js');
     cardsIn('#projects .proj-grid > .proj-card');
     cardsIn('#strengths .str-grid > .str-card');
     cardsIn('#hobbies .hobby-grid > .hobby-card');
+    cardsIn('#services .sv-intro, #services .sv-grid > .sv-card, #services .sv-strip');
     cardsIn('#contact .contact-kicker, #contact .contact-title, #contact .contact-sub, #contact .contact-ways, #contact .contact-foot');
 
     /* Image reveal + light parallax (honor certificates) */
