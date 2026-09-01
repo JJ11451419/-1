@@ -2878,7 +2878,7 @@ void main() {
           lfScrollRaf = requestAnimationFrame(function () {
             lfScrollRaf = 0;
             lfAtHero = window.scrollY < 20;
-            lfCanvas.style.opacity = Math.min(1, window.scrollY / (window.innerHeight * 0.35));
+            lfCanvas.style.opacity = Math.min(0.2, window.scrollY / (window.innerHeight * 0.35));
             lfUpdate();
           });
         };
